@@ -33,12 +33,19 @@
   "dependencies": {
     "errio": "1.2.2",
     "lodash": "4.17.21",
+    "mdast-util-from-markdown": "^1.0.4",
     "nlcst-to-string": "^3.1.0",
     "nlcst-types": "^1.2.4",
     "preval.macro": "^5.0.0",
+    "remark-parse": "^10.0.0",
+    "remark-retext": "^5.0.0",
+    "remark-stringify": "^10.0.1",
     "type-fest": "^2.5.1",
+    "unified": "^10.1.0",
     "unist-builder": "^3.0.0",
-    "unist-util-visit": "^4.1.0"
+    "unist-util-visit": "^4.1.0",
+    "vfile": "^5.1.1",
+    "vfile-reporter": "^7.0.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.15.7",
