@@ -4,9 +4,9 @@
   "description": "template-based-generator-template 基于模板的文本生成器的模板，模生模，凤生凤，老鼠的儿子会打洞。",
   "main": "dist/index.js",
   "scripts": {
-    "build": "npm run build:types && npm run build:js",
+    "build": "npm run build:types & npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
-    "build:js": "babel src --out-dir dist --extensions \".ts,.tsx\" --source-maps inline",
+    "build:js": "rollup -c",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublishOnly": "npm run clean && npm run build",
     "clean": "rimraf dist",
@@ -52,6 +52,11 @@
     "@babel/core": "^7.15.8",
     "@babel/preset-env": "^7.15.8",
     "@babel/preset-typescript": "^7.15.0",
+    "@rollup/plugin-babel": "^5.3.0",
+    "@rollup/plugin-commonjs": "^15.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^9.0.0",
+    "@rollup/plugin-typescript": "^8.2.5",
     "@types/eslint": "7.28.1",
     "@types/eslint-plugin-prettier": "3.1.0",
     "@types/lodash": "4.14.175",
@@ -78,6 +83,8 @@
     "eslint-plugin-unicorn": "37.0.1",
     "prettier": "^2.4.1",
     "rimraf": "^3.0.2",
+    "rollup": "^2.27.1",
+    "rollup-plugin-disable-packages": "^4.0.1",
     "typescript": "4.4.4",
     "typesync": "0.8.0"
   }
