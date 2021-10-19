@@ -1,0 +1,1 @@
+export { templates } from './data';

@@ -1,0 +1,77 @@
+{
+  "name": "tbg",
+  "version": "0.0.3",
+  "description": "template-based-generator-template 基于模板的文本生成器的模板，模生模，凤生凤，老鼠的儿子会打洞。",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npm run build:types && npm run build:js",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:js": "babel src --out-dir dist --extensions \".ts,.tsx\" --source-maps inline",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "npm run clean && npm run build",
+    "clean": "rimraf dist",
+    "installType": "typesync"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linonetwo/template-based-generator-template.git"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md"
+  ],
+  "keywords": [
+    "generator",
+    "template"
+  ],
+  "author": "lin onetwo",
+  "license": " GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/linonetwo/template-based-generator-template/issues"
+  },
+  "homepage": "https://github.com/linonetwo/template-based-generator-template#readme",
+  "dependencies": {
+    "errio": "1.2.2",
+    "lodash": "4.17.21",
+    "nlcst-to-string": "^3.1.0",
+    "nlcst-types": "^1.2.4",
+    "preval.macro": "^5.0.0",
+    "type-fest": "^2.5.1",
+    "unist-builder": "^3.0.0",
+    "unist-util-visit": "^4.1.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.15.7",
+    "@babel/core": "^7.15.8",
+    "@babel/preset-env": "^7.15.8",
+    "@babel/preset-typescript": "^7.15.0",
+    "@types/eslint": "7.28.1",
+    "@types/eslint-plugin-prettier": "3.1.0",
+    "@types/lodash": "4.14.175",
+    "@types/preval.macro": "^3.0.0",
+    "@typescript-eslint/eslint-plugin": "5.0.0",
+    "@typescript-eslint/parser": "5.0.0",
+    "babel-plugin-macros": "^3.1.0",
+    "eslint": "8.0.1",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-config-standard": "16.0.3",
+    "eslint-config-standard-with-typescript": "21.0.1",
+    "eslint-import-resolver-alias": "1.1.2",
+    "eslint-import-resolver-typescript": "2.5.0",
+    "eslint-plugin-html": "6.2.0",
+    "eslint-plugin-import": "2.25.2",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-prettier": "4.0.0",
+    "eslint-plugin-promise": "5.1.0",
+    "eslint-plugin-react": "7.26.1",
+    "eslint-plugin-react-hooks": "4.2.0",
+    "eslint-plugin-security": "1.4.0",
+    "eslint-plugin-security-node": "1.0.14",
+    "eslint-plugin-typescript-sort-keys": "2.0.0",
+    "eslint-plugin-unicorn": "37.0.1",
+    "prettier": "^2.4.1",
+    "rimraf": "^3.0.2",
+    "typescript": "4.4.4",
+    "typesync": "0.8.0"
+  }
+}
