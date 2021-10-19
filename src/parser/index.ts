@@ -66,7 +66,7 @@ export function templateStringToNLCSTNodes(templateFile: VFile): [ITemplateData,
           }
           // 大标题的下一个节点即是大纲节点
           const nextOutlineNode = mdastInstance.children[mdNodeIndex + 1];
-          if (nextOutlineNode.type === 'paragraph') {
+          if (nextOutlineNode?.type === 'paragraph') {
             /**
              * ```json
              * children: [
@@ -96,8 +96,7 @@ export function templateStringToNLCSTNodes(templateFile: VFile): [ITemplateData,
             // 只会有两种情况：文本或标题，如果是标题则判断一下，文本就都正常，不过要注意检测一下没有两个不同级标题先高后低夹着文本的情况，这个是不允许的
             if (rootNodeDetectorCurrentMDASTNode.type === 'text') {
               rootNodeDetectorPassingText = true;
-            }
-            if (rootNodeDetectorCurrentMDASTNode.type === 'heading') {
+            } else if (rootNodeDetectorCurrentMDASTNode.type === 'heading') {
               // 找到了同级节点或上级节点，说明本节点正常结束了，结束检测
               if (rootNodeDetectorPassingText && rootNodeDetectorCurrentMDASTNode.depth === currentMDASTNode.depth) {
                 templateFile.message(new NoTextBetweenTitleError(), rootNodeDetectorCurrentMDASTNode.position);
@@ -109,6 +108,9 @@ export function templateStringToNLCSTNodes(templateFile: VFile): [ITemplateData,
               if (rootNodeDetectorPassingText && rootNodeDetectorCurrentMDASTNode.depth < currentMDASTNode.depth) {
                 templateFile.fail(new BadTextBetweenTitleError(), rootNodeDetectorCurrentMDASTNode.position);
               }
+            } else {
+              // 带上了其他奇奇怪怪的 Markdown 语法，报个错
+              templateFile.fail(new BadTextBetweenTitleError(), rootNodeDetectorCurrentMDASTNode.position);
             }
           }
           break;
@@ -119,12 +121,12 @@ export function templateStringToNLCSTNodes(templateFile: VFile): [ITemplateData,
         const resourcesDataPath = titleStack.join('.');
         // 如果下一个节点是标题，这个标题要不就是和之前同级，要不就是更高级的（不会是更低级的，上面的检测保证了），说明要出栈了
         const nextHeadingNode = mdastInstance.children[mdNodeIndex + 1];
-        if (nextHeadingNode.type === 'heading') {
+        if (nextHeadingNode?.type === 'heading') {
           titleStack.pop();
         }
         // 一个 Paragraph 里只会有一个 TextNode
         const paragraphTextNode = currentMDASTNode.children[0];
-        if (paragraphTextNode.type !== 'text' || paragraphTextNode.value.length === 0) {
+        if (paragraphTextNode?.type !== 'text' || paragraphTextNode.value.length === 0) {
           templateFile.fail(new BadTextBetweenTitleError(), paragraphTextNode.position);
         }
         // 我们往 Paragraph 里塞 Sentence（每个自然段是一个 Sentence，因为它们最后就只是生成一句话），一个 Sentence 里会有多个 Word，每个就是一行文本，我们将一行文本看做是一个模因，所以称为 Word 也算合理。一行文本经过分词之后，每一个语素就用 Text 和 Symbol 来承装吧。当然，一个核心理由是，MDAST 里缺少 Sentence 这个级别的概念。
