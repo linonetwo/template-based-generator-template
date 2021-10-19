@@ -27,8 +27,6 @@ export interface ITemplateData {
 
 /**
  * 通过认真领会精神，把一个包含学习资料的字符串变为 UNIST（此处为 NLCST）节点，并保留待填入具体内容的槽，成为一个模板 CST
- * @param
- * @param templateFilePath debug用的模板文件地址，在模板有语法错误时提供定位信息，可以编造一个文件地址
  *
  * // TODO: Word 节点按定义应该是词级别，但是因为我们将大段模板文本看做整体（模因位点），故本次直接在 Word 里面带上含有大段文本的 Text，把 Word 当 Phrase 来看待。未来应该完全使用带词性标注的词级节点，并在使用侧增加利用方法
  */

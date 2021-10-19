@@ -1,1 +1,2 @@
-export { templates } from './data';
+export * from './data';
+export * from './parser';
