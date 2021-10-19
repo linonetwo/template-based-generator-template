@@ -1,10 +1,10 @@
-import { compact, trim } from 'lodash';
+import { get, set } from 'lodash';
 import { VFile } from 'vfile';
 import { reporter } from 'vfile-reporter';
 import { TextNode, Sentence, Paragraph, Word } from 'nlcst-types';
 import { fromMarkdown } from 'mdast-util-from-markdown';
-import u from 'unist-builder';
-import { NoOutlineInTemplateError, NoBigTitleInTemplateError, NoTitleContentError } from './errors';
+import { u } from 'unist-builder';
+import { NoOutlineInTemplateError, NoBigTitleInTemplateError, NoTitleContentError, BadTextBetweenTitleError, NoTextBetweenTitleError } from './errors';
 
 /**
  * 模板资源的树状结构
@@ -91,22 +91,68 @@ export function templateStringToNLCSTNodes(templateFile: VFile): [ITemplateData,
         } else {
           // 仅对于二级以上标题建栈，因为二级以上标题才算是开始构建模板内容树
           titleStack.push(titleTextValue);
+          // 判断一下现在是不是根节点了，根节点意味着后面没有更深层次的标题了
+          let rootNodeDetectorPassingText = false;
+          for (let rootNodeDetectorIndex = mdNodeIndex; rootNodeDetectorIndex < mdastInstance.children.length; rootNodeDetectorIndex += 1) {
+            const rootNodeDetectorCurrentMDASTNode = mdastInstance.children[rootNodeDetectorIndex];
+            // 只会有两种情况：文本或标题，如果是标题则判断一下，文本就都正常，不过要注意检测一下没有两个不同级标题先高后低夹着文本的情况，这个是不允许的
+            if (rootNodeDetectorCurrentMDASTNode.type === 'text') {
+              rootNodeDetectorPassingText = true;
+            }
+            if (rootNodeDetectorCurrentMDASTNode.type === 'heading') {
+              // 找到了同级节点或上级节点，说明本节点正常结束了，结束检测
+              if (rootNodeDetectorPassingText && rootNodeDetectorCurrentMDASTNode.depth === currentMDASTNode.depth) {
+                templateFile.message(new NoTextBetweenTitleError(), rootNodeDetectorCurrentMDASTNode.position);
+              }
+              if (rootNodeDetectorCurrentMDASTNode.depth >= currentMDASTNode.depth) {
+                break;
+              }
+              // 标题先高后低夹着文本，直接报错
+              if (rootNodeDetectorPassingText && rootNodeDetectorCurrentMDASTNode.depth < currentMDASTNode.depth) {
+                templateFile.fail(new BadTextBetweenTitleError(), rootNodeDetectorCurrentMDASTNode.position);
+              }
+            }
+          }
+          break;
         }
+      }
+      case 'paragraph': {
+        // 到达了根节点，准备往资源库里塞数据，构建一下数据路径
+        const resourcesDataPath = titleStack.join('.');
+        // 如果下一个节点是标题，这个标题要不就是和之前同级，要不就是更高级的（不会是更低级的，上面的检测保证了），说明要出栈了
+        const nextHeadingNode = mdastInstance.children[mdNodeIndex + 1];
+        if (nextHeadingNode.type === 'heading') {
+          titleStack.pop();
+        }
+        // 一个 Paragraph 里只会有一个 TextNode
+        const paragraphTextNode = currentMDASTNode.children[0];
+        if (paragraphTextNode.type !== 'text' || paragraphTextNode.value.length === 0) {
+          templateFile.fail(new BadTextBetweenTitleError(), paragraphTextNode.position);
+        }
+        // 我们往 Paragraph 里塞 Sentence（每个自然段是一个 Sentence，因为它们最后就只是生成一句话），一个 Sentence 里会有多个 Word，每个就是一行文本，我们将一行文本看做是一个模因，所以称为 Word 也算合理。一行文本经过分词之后，每一个语素就用 Text 和 Symbol 来承装吧。当然，一个核心理由是，MDAST 里缺少 Sentence 这个级别的概念。
+        // 我们取出字符串内容，并去掉空行和空白
+        const textValueLines = paragraphTextNode.value.split('\n');
+        const unistWordMemeNodes: Word[] = textValueLines.map((line) => {
+          // 把模板变成 UNIST 节点
+          const memeFragmentNodes: TextNode[] = line.split(/({{[^{}]+}})/g).map((memePart) =>
+            u('TextNode', {
+              value: memePart,
+              // 如果是{{正面工作}}这样的节点，则标注为待填的槽（slot 是我们自定义的元信息），等待之后替换为具体内容
+              slot: /({{[^{}]+}})/.test(memePart) ? memePart : undefined,
+            }),
+          );
+          return u('WordNode', { children: memeFragmentNodes });
+        });
+        const unistSentenceNode: Sentence = u('SentenceNode', { children: unistWordMemeNodes });
+        // 塞数据了
+        const previousParagraphNode = get(templateData.resources, resourcesDataPath) ?? u('ParagraphNode', { children: [] });
+        if (!Array.isArray(previousParagraphNode.children)) {
+          throw new TypeError(`程序逻辑漏洞：previousParagraphNode.children is not an Array： ${JSON.stringify(previousParagraphNode)}`);
+        }
+        previousParagraphNode.children.push(unistSentenceNode);
+        set(templateData.resources, resourcesDataPath, previousParagraphNode);
       }
     }
   }
-
-  // 取出字符串内容，并去掉空行和空白
-  // const unistWordNodes: Word[] = lines.map((line) => {
-  //   // 把模板变成 UNIST 节点
-  //   const leafTemplateFragmentNodes = line.split(/({{正面工作}}|{{负面工作}})/g).map((value) => ({
-  //     type: 'TextNode',
-  //     value,
-  //     // 如果是{{正面工作}}这样的节点，则标注为待填的槽（slot 是我们自定义的元信息），等待之后替换为具体内容
-  //     slot: value === '{{正面工作}}' || value === '{{负面工作}}' ? value : undefined,
-  //   }));
-  //   return { type: 'WordNode', children: leafTemplateFragmentNodes };
-  // });
-  // const sentenceUnistNode = u('SentenceNode', { children: unistWordNodes });
   return [templateData, templateFile];
 }
