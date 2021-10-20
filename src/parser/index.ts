@@ -133,13 +133,18 @@ export function templateStringToNLCSTNodes(templateFile: VFile): [ITemplateData,
         const textValueLines = paragraphTextNode.value.split('\n');
         const unistWordMemeNodes: Word[] = textValueLines.map((line) => {
           // 把模板变成 UNIST 节点
-          const memeFragmentNodes: TextNode[] = line.split(/({{[^{}]+}})/g).map((memePart) =>
-            u('TextNode', {
-              value: memePart,
-              // 如果是{{正面工作}}这样的节点，则标注为待填的槽（slot 是我们自定义的元信息），等待之后替换为具体内容
-              slot: /({{[^{}]+}})/.test(memePart) ? memePart.replace(/[{}]/g, '') : undefined,
-            }),
-          );
+          const memeFragmentNodes: TextNode[] = line
+            .split(/({{[^{}]+}})/g)
+            .flatMap((memePart) => memePart.split(/(\[\[[^[\]]+]])/g))
+            .map((memePart) =>
+              u('TextNode', {
+                value: memePart,
+                // 如果是{{正面工作}}这样的节点，则标注为待填的槽（slot 是我们自定义的元信息），等待之后替换为具体内容
+                slot: /({{[^{}]+}})/.test(memePart) ? memePart.replace(/[{}]/g, '') : undefined,
+                // 如果是[[目标感>1;目标感+1]]这样的节点，则标注为元信息表，等待之后提取
+                metadata: /(\[\[[^[\]]+]])/.test(memePart) ? memePart.replace(/[[\]]/g, '').split(/[,，]/g) : undefined,
+              }),
+            );
           return u('WordNode', { children: memeFragmentNodes });
         });
         const unistSentenceNode: Sentence = u('SentenceNode', { children: unistWordMemeNodes });

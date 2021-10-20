@@ -67,11 +67,41 @@ export function replaceSlotValues(article: Root, config: IConfiguration): void {
 }
 
 /**
+ * 提取 NLCST Root 节点中的所有 Text 节点中的元信息，放到其上级 Word 中
+ */
+export function extractMetadataValues(article: Root, config: IConfiguration): void {
+  // 把元信息移除
+  visit(article, 'WordNode', (wordNode: Word) => {
+    if (Array.isArray(wordNode.children)) {
+      wordNode.children.forEach((textNode) => {
+        if (Array.isArray(textNode.metadata)) {
+          // 如果不慎存在多个元信息语法，则最后一个会覆盖之前的
+          wordNode.data = { ...wordNode.data, metadata: textNode.metadata };
+        }
+      });
+    }
+  });
+}
+/**
+ * 删除 NLCST Root 节点中的所有 Text 节点中的元信息
+ */
+export function removeMetadataValues(article: Root, config: IConfiguration): void {
+  // 把元信息移除
+  visit(article, 'TextNode', (textNode: TextNode) => {
+    if (Array.isArray(textNode.metadata)) {
+      textNode.value = '';
+      delete textNode.metadata;
+    }
+  });
+}
+
+/**
  * 将结构化的模板数据变成字符串
  */
 export function randomOutlineToStringCompiler(template: ITemplateData, config: IConfiguration): string {
   const article = getRandomArticle(template, config);
   replaceSlotValues(article, config);
+  removeMetadataValues(article, config);
   // 成文
   return toString(article);
 }
@@ -82,7 +112,31 @@ export function randomOutlineToStringCompiler(template: ITemplateData, config: I
 export function randomOutlineToArrayCompiler(template: ITemplateData, config: IConfiguration): string[] {
   const article = getRandomArticle(template, config);
   replaceSlotValues(article, config);
+  removeMetadataValues(article, config);
   // 获取 Word 列表
   const words = article.children.flatMap((paragraph) => (paragraph as Paragraph).children.flatMap((sentence) => (sentence as Sentence).children)) as Content[];
   return words.map((word) => toString(word));
+}
+
+export interface IOutputWIthMetadata<T extends unknown[]> {
+  metadata: T | undefined;
+  value: string;
+}
+/**
+ * 将结构化的模板数据变成根据 Word 拆分的字符串的数组，也就是模板里的一行对应数组里的一个字符串，而且带上元信息
+ */
+export function randomOutlineToArrayWithMetadataCompiler<T extends unknown[]>(template: ITemplateData, config: IConfiguration): Array<IOutputWIthMetadata<T>> {
+  const article = getRandomArticle(template, config);
+  replaceSlotValues(article, config);
+  extractMetadataValues(article, config);
+  removeMetadataValues(article, config);
+  // 获取 Word 列表
+  const wordsWithMetadata = article.children.flatMap((paragraph) =>
+    (paragraph as Paragraph).children.flatMap((sentence) =>
+      (sentence as Sentence).children.map((word) => {
+        return [word, word?.data?.metadata as T | undefined];
+      }),
+    ),
+  ) as Array<[Content, T]>;
+  return wordsWithMetadata.map((wordWithMetadata) => ({ value: toString(wordWithMetadata[0]), metadata: wordWithMetadata[1] }));
 }
