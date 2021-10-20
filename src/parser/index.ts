@@ -1,6 +1,5 @@
 import { get, set } from 'lodash';
 import { VFile } from 'vfile';
-import { reporter } from 'vfile-reporter';
 import { TextNode, Sentence, Paragraph, Word } from 'nlcst-types';
 import { fromMarkdown } from 'mdast-util-from-markdown';
 import { u } from 'unist-builder';
@@ -11,12 +10,12 @@ import { NoOutlineInTemplateError, NoBigTitleInTemplateError, NoTitleContentErro
  * ```json
  * {
  *    "做得好的": {
- *      "项目·起": [["在项目发展早期"], ["3333"]]
+ *      "项目·起": Paragraph<Sentence[]> // [["在项目发展早期", "{{xxx}}"], ["3333"]]
  *    }
  * }
  * ```
  */
-export type ITemplateResource = Record<string, Paragraph | ITemplateResourceValue>;
+export type ITemplateResource = Record<string, Paragraph | undefined | ITemplateResourceValue>;
 interface ITemplateResourceValue extends ITemplateResource {}
 
 export interface ITemplateData {
@@ -138,14 +137,14 @@ export function templateStringToNLCSTNodes(templateFile: VFile): [ITemplateData,
             u('TextNode', {
               value: memePart,
               // 如果是{{正面工作}}这样的节点，则标注为待填的槽（slot 是我们自定义的元信息），等待之后替换为具体内容
-              slot: /({{[^{}]+}})/.test(memePart) ? memePart : undefined,
+              slot: /({{[^{}]+}})/.test(memePart) ? memePart.replace(/[{}]/g, '') : undefined,
             }),
           );
           return u('WordNode', { children: memeFragmentNodes });
         });
         const unistSentenceNode: Sentence = u('SentenceNode', { children: unistWordMemeNodes });
         // 塞数据了
-        const previousParagraphNode = get(templateData.resources, resourcesDataPath) ?? u('ParagraphNode', { children: [] });
+        const previousParagraphNode = get(templateData.resources, resourcesDataPath) ?? u('ParagraphNode', { children: [] as Sentence[] });
         if (!Array.isArray(previousParagraphNode.children)) {
           throw new TypeError(`程序逻辑漏洞：previousParagraphNode.children is not an Array： ${JSON.stringify(previousParagraphNode)}`);
         }
