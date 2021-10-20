@@ -2,7 +2,7 @@ import { u } from 'unist-builder';
 import { cloneDeep, get, random } from 'lodash';
 import { Paragraph, Sentence, TextNode, Word } from 'nlcst-types';
 import { visit } from 'unist-util-visit';
-import { Root, toString } from 'nlcst-to-string';
+import { Root, Content, toString } from 'nlcst-to-string';
 import { ITemplateData } from 'src/parser';
 import { EmptyTemplateTextError, NoResourceForOutlineError, NoValueForSlotError } from './errors';
 
@@ -11,13 +11,14 @@ export interface IConfiguration {
 }
 
 /**
+ * 将解析出的模板结构化数据转换为 NLCST Root 节点
  * Paragraph > Sentence > Word > Text
  *
  * Paragraph：大纲每行生成的结果；
  * Sentence：模板库里的内容单位，每个对应模板里一个自然段
  * Word-Text：具体的模板内容，每个对应模板里一行
  */
-export function randomOutlineCompiler(template: ITemplateData, config: IConfiguration): string {
+export function getRandomArticle(template: ITemplateData, config: IConfiguration): Root {
   const paragraphs = template.outline.map((outlineLine) => {
     // 根据大纲获取随机素材
     const dataPath = outlineLine.split('：').join('.');
@@ -44,6 +45,13 @@ export function randomOutlineCompiler(template: ITemplateData, config: IConfigur
   });
 
   const article = u('RootNode', { children: paragraphs }) as Root;
+  return article;
+}
+
+/**
+ * 替换 NLCST Root 节点中的所有 Text 节点中的模板槽位
+ */
+export function replaceSlotValues(article: Root, config: IConfiguration): void {
   // 把具体内容填入槽中
   visit(article, 'TextNode', (textNode: TextNode) => {
     // 看看是否需要替换槽位
@@ -56,7 +64,25 @@ export function randomOutlineCompiler(template: ITemplateData, config: IConfigur
       delete textNode.slot;
     }
   });
+}
 
+/**
+ * 将结构化的模板数据变成字符串
+ */
+export function randomOutlineToStringCompiler(template: ITemplateData, config: IConfiguration): string {
+  const article = getRandomArticle(template, config);
+  replaceSlotValues(article, config);
   // 成文
   return toString(article);
+}
+
+/**
+ * 将结构化的模板数据变成根据 Word 拆分的字符串的数组，也就是模板里的一行对应数组里的一个字符串
+ */
+export function randomOutlineToArrayCompiler(template: ITemplateData, config: IConfiguration): string[] {
+  const article = getRandomArticle(template, config);
+  replaceSlotValues(article, config);
+  // 获取 Word 列表
+  const words = article.children.flatMap((paragraph) => (paragraph as Paragraph).children.flatMap((sentence) => (sentence as Sentence).children)) as Content[];
+  return words.map((word) => toString(word));
 }
