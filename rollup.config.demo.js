@@ -1,20 +1,26 @@
-import resolve from '@rollup/plugin-node-resolve';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import babel from '@rollup/plugin-babel';
-// import replace from '@rollup/plugin-replace';
+import replace from '@rollup/plugin-replace';
+import nodePolyfills from 'rollup-plugin-polyfill-node';
+import globals from '@crokita/rollup-plugin-node-globals';
 
 export default {
   input: 'demo/app.tsx',
   output: {
     file: 'public-dist/bundle.js',
     format: 'iife',
+    globals: {
+      global: 'window',
+    },
   },
   plugins: [
-    resolve({ extensions: ['.ts', '.tsx', '.js', '.jsx'] }),
+    nodeResolve({ extensions: ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.mts'], browser: true }),
     commonjs(),
-    babel({ babelHelpers: 'bundled', extensions: ['.ts', '.tsx'] }),
-    // replace({
-    //   'process.env.NODE_ENV': JSON.stringify('production'),
-    // }),
+    nodePolyfills({ include: ['process', 'os', 'tty'] }),
+    babel({ exclude: 'node_modules/**', babelHelpers: 'bundled', extensions: ['.ts', '.tsx'] }),
+    replace({
+      'process.env.NODE_ENV': JSON.stringify('production'),
+    }),
   ],
 };

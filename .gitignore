@@ -60,6 +60,7 @@ template/wiki/settings/settings.json
 # web build
 .webpack
 out/
+public-dist/
 
 # testing and dev temp folders
 settings-dev/
