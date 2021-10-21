@@ -38,7 +38,7 @@ const ConfigurationContainer = styled.div`
 `;
 const ConfigJSONSchemaForm = styled(Form)`
   display: flex;
-  flex: 1;
+  flex: 3;
 `;
 const ErrorMessageContainer = styled.div`
   display: flex;
