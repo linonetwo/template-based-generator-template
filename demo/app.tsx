@@ -2,22 +2,38 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { Card, Intent, TextArea } from '@blueprintjs/core';
-import { IConfiguration } from '../src';
 import { useTemplateGeneration } from './useTemplateGeneration';
 
 const Container = styled.div`
   display: flex;
   flex-direction: row;
+
+  width: 100%;
+  min-height: 90vh;
 `;
 const TemplateInputContainer = styled(Card)`
   display: flex;
+  flex: 1;
   flex-direction: column;
+
+  min-height: 100%;
+  & textarea {
+    display: flex;
+    flex: 1;
+  }
+  & textarea:first-child {
+    display: flex;
+    flex: 3;
+  }
 `;
 const ErrorMessageContainer = styled.div`
+  display: flex;
   justify-content: center;
   align-items: center;
 `;
 const ResultContainer = styled(Card)`
+  display: flex;
+  flex: 1;
   justify-content: center;
   align-items: center;
 `;

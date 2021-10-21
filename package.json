@@ -8,9 +8,10 @@
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "rollup -c",
     "build:demo": "rollup -c rollup.config.demo.js && cp demo/index.html public-dist/index.html",
+    "dev:demo": "mkdir -p public-dist/ && cp demo/index.html public-dist/index.html && rollup -c rollup.config.demo.development.js --watch",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublishOnly": "npm run clean && npm run build",
-    "clean": "rimraf dist",
+    "clean": "rimraf dist public-dist",
     "installType": "typesync"
   },
   "repository": {
@@ -62,9 +63,9 @@
     "@rollup/plugin-node-resolve": "^9.0.0",
     "@rollup/plugin-replace": "^3.0.0",
     "@rollup/plugin-typescript": "^8.2.5",
+    "@types/babel-plugin-macros": "^2.8.5",
     "@types/babel__core": "^7.1.16",
     "@types/babel__preset-env": "^7.9.2",
-    "@types/babel-plugin-macros": "^2.8.5",
     "@types/eslint": "7.28.1",
     "@types/eslint-plugin-prettier": "3.1.0",
     "@types/lodash": "4.14.175",
@@ -73,6 +74,7 @@
     "@types/react": "^17.0.31",
     "@types/react-dom": "^17.0.10",
     "@types/rimraf": "^3.0.2",
+    "@types/rollup-plugin-node-globals": "^1.4.1",
     "@types/styled-components": "^5.1.15",
     "@typescript-eslint/eslint-plugin": "5.0.0",
     "@typescript-eslint/parser": "5.0.0",
@@ -99,8 +101,10 @@
     "rimraf": "^3.0.2",
     "rollup": "^2.27.1",
     "rollup-plugin-disable-packages": "^4.0.1",
+    "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-node-globals": "^1.4.0",
     "rollup-plugin-polyfill-node": "^0.7.0",
+    "rollup-plugin-serve": "^1.1.0",
     "typescript": "4.4.4",
     "typesync": "0.8.0"
   }
