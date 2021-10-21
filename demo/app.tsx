@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { Card, Intent, Tab, Tabs, TextArea } from '@blueprintjs/core';
 import { withTheme } from '@rjsf/core';
 import { Theme as MaterialUITheme } from '@rjsf/material-ui';
+import { useLocalStorage } from 'beautiful-react-hooks';
 import { useTemplateGeneration } from './useTemplateGeneration';
 import type { IConfiguration } from '../src';
 import { templates } from '../src';
@@ -65,12 +66,17 @@ const ResultContainer = styled(Card)`
 
 function App(): JSX.Element {
   const [configString, configStringSetter] = useState<string>('{ "substitutions": {} }');
-  const [templateTab, templateTabSetter] = useState<string>('空白');
+  const [templateTab, templateTabSetter] = useState<keyof typeof templates>('空白');
+  const [空白templateContent, 空白templateContentSetter] = useLocalStorage<string>('空白templateContent', templates['空白']);
   let configFormData: IConfiguration | undefined;
   try {
     configFormData = JSON.parse(configString) as IConfiguration;
   } catch {}
   const [rerender, template, templateSetter, result, configSchema, errorMessage] = useTemplateGeneration(configFormData);
+  useEffect(() => {
+    templates['空白'] = 空白templateContent;
+    templateSetter(templates[templateTab]);
+  }, []);
   return (
     <Container>
       <ContentContainer>
@@ -86,7 +92,18 @@ function App(): JSX.Element {
               <Tab id={templateName} key={templateName} title={templateName} panel={<div />} />
             ))}
           </Tabs>
-          <TextArea large={true} intent={Intent.PRIMARY} fill={true} onChange={(event) => templateSetter(event.target.value)} value={template} />
+          <TextArea
+            large={true}
+            intent={Intent.PRIMARY}
+            fill={true}
+            onChange={(event) => {
+              templateSetter(event.target.value);
+              if (templateTab === '空白') {
+                空白templateContentSetter(event.target.value);
+              }
+            }}
+            value={template}
+          />
           <ConfigurationContainer>
             {configSchema !== undefined && (
               <ConfigJSONSchemaForm
