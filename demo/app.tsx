@@ -23,8 +23,8 @@ const ResultContainer = styled(Card)`
 `;
 
 function App(): JSX.Element {
-  const [config, configSetter] = useState<IConfiguration>({ substitutions: {} });
-  const [template, templateSetter, result, errorMessage] = useTemplateGeneration(config);
+  const [configString, configStringSetter] = useState<string>('{ "substitutions": {} }');
+  const [template, templateSetter, result, errorMessage] = useTemplateGeneration(configString);
   return (
     <Container>
       <TemplateInputContainer>
@@ -42,12 +42,9 @@ function App(): JSX.Element {
           intent={Intent.PRIMARY}
           fill={true}
           onChange={(event) => {
-            try {
-              const parsedConfig = JSON.parse(event.target.value);
-              configSetter(parsedConfig);
-            } catch {}
+            configStringSetter(event.target.value);
           }}
-          value={JSON.stringify(config, undefined, '  ')}
+          value={configString}
         />
         <ErrorMessageContainer>{errorMessage}</ErrorMessageContainer>
       </TemplateInputContainer>
