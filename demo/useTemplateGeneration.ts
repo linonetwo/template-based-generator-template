@@ -3,7 +3,7 @@ import { useDebouncedFn } from 'beautiful-react-hooks';
 import { VFile } from 'vfile';
 import type { JSONSchema7 } from 'json-schema';
 // import { reporter } from 'vfile-reporter';
-import { IConfiguration, randomOutlineToArrayCompiler, templateFileToNLCSTNodes, getConfigSchemaFromTemplate } from '../src';
+import { IConfiguration, randomOutlineToArrayCompiler, templateFileToNLCSTNodes, getConfigSchemaFromTemplate, IOutputWIthMetadata, randomOutlineToArrayWithMetadataCompiler } from '../src';
 
 function useTrigger() {
   const [a, f] = useState(false);
@@ -17,7 +17,7 @@ function useTrigger() {
 
 export function useTemplateGeneration(configFormData: IConfiguration | undefined) {
   const [template, templateSetter] = useState('');
-  const [result, resultSetter] = useState<string[]>([]);
+  const [result, resultSetter] = useState<Array<IOutputWIthMetadata<any[]>>>([]);
   const [errorMessage, errorMessageSetter] = useState('');
   const [configSchema, configSchemaSetter] = useState<JSONSchema7 | undefined>();
   const [rerender, rerenderHookTrigger] = useTrigger();
@@ -31,7 +31,7 @@ export function useTemplateGeneration(configFormData: IConfiguration | undefined
         if (configFormData === undefined) {
           throw new Error('模板参数不正确');
         }
-        resultSetter(randomOutlineToArrayCompiler(templateData, configFormData));
+        resultSetter(randomOutlineToArrayWithMetadataCompiler(templateData, configFormData));
       } catch (e) {
         newErrorMessage += (e as Error).message;
       }

@@ -7,6 +7,7 @@ import { Theme as MaterialUITheme } from '@rjsf/material-ui';
 import { useTemplateGeneration } from './useTemplateGeneration';
 import type { IConfiguration } from '../src';
 import { templates } from '../src';
+import { ResultLine } from './result';
 
 const Form = withTheme(MaterialUITheme);
 
@@ -57,8 +58,9 @@ const ErrorMessageContainer = styled.div`
 const ResultContainer = styled(Card)`
   display: flex;
   flex: 1;
+  flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
 `;
 
 function App(): JSX.Element {
@@ -108,7 +110,11 @@ function App(): JSX.Element {
           </ConfigurationContainer>
           <ErrorMessageContainer>{errorMessage}</ErrorMessageContainer>
         </TemplateInputContainer>
-        <ResultContainer>{result}</ResultContainer>
+        <ResultContainer>
+          {result.map((outputLine, index) => (
+            <ResultLine key={index} outputLine={outputLine} />
+          ))}
+        </ResultContainer>
       </ContentContainer>
     </Container>
   );
