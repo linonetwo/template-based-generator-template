@@ -5,6 +5,7 @@ import { visit } from 'unist-util-visit';
 import { Root, Content, toString } from 'nlcst-to-string';
 import { ITemplateData } from 'src/parser';
 import { EmptyTemplateTextError, NoResourceForOutlineError, NoValueForSlotError } from './errors';
+import type { JSONSchema7 } from 'json-schema';
 
 export interface IConfiguration {
   substitutions?: Record<string, string>;
@@ -46,6 +47,57 @@ export function getRandomArticle(template: ITemplateData, config: IConfiguration
 
   const article = u('RootNode', { children: paragraphs }) as Root;
   return article;
+}
+
+/**
+ * 收集模板数据中的槽位信息
+ */
+export function collectSlots(template: ITemplateData): string[] {
+  const slots = new Set<string>();
+  template.outline.forEach((outlineLine) => {
+    // 根据大纲获取随机素材
+    const dataPath = outlineLine.split('：').join('.');
+    const paragraph = get(template.resources, dataPath);
+    // 把具体内容填入槽中
+    if (paragraph !== undefined && paragraph.type === 'ParagraphNode') {
+      visit(paragraph as Paragraph, 'TextNode', (textNode: TextNode) => {
+        // 看看是否需要替换槽位
+        if (typeof textNode.slot === 'string') {
+          slots.add(textNode.slot);
+        }
+      });
+    }
+  });
+  return [...slots.keys()];
+}
+
+/**
+ * 为 UI 制作待填参数表单
+ */
+export function getConfigSchemaFromTemplate(templateData: ITemplateData): JSONSchema7 {
+  const slots = collectSlots(templateData);
+  const configSchemaBase: JSONSchema7 = {
+    title: '模板参数',
+    description: '生成流程所需的参数',
+    type: 'object',
+    required: [],
+    properties: {
+      substitutions: {
+        title: '模板槽位',
+        description: '填入{{槽位}}中的内容',
+        type: 'object',
+        required: [],
+        properties: {},
+      },
+    },
+  };
+  for (const slot of slots) {
+    (configSchemaBase.properties!.substitutions as JSONSchema7).properties![slot] = {
+      type: 'string',
+      title: slot,
+    };
+  }
+  return configSchemaBase;
 }
 
 /**

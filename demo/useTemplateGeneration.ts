@@ -1,22 +1,37 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useDebouncedFn } from 'beautiful-react-hooks';
 import { VFile } from 'vfile';
+import type { JSONSchema7 } from 'json-schema';
 // import { reporter } from 'vfile-reporter';
-import { IConfiguration, randomOutlineToArrayCompiler, templateFileToNLCSTNodes } from '../src';
+import { IConfiguration, randomOutlineToArrayCompiler, templateFileToNLCSTNodes, getConfigSchemaFromTemplate } from '../src';
 
-export function useTemplateGeneration(configString: string) {
+function useTrigger() {
+  const [a, f] = useState(false);
+  return [
+    useCallback(() => {
+      f(!a);
+    }, [a]),
+    a,
+  ] as const;
+}
+
+export function useTemplateGeneration(configFormData: IConfiguration | undefined) {
   const [template, templateSetter] = useState('');
   const [result, resultSetter] = useState<string[]>([]);
   const [errorMessage, errorMessageSetter] = useState('');
+  const [configSchema, configSchemaSetter] = useState<JSONSchema7 | undefined>();
+  const [rerender, rerenderHookTrigger] = useTrigger();
   const parseAndGenerateFromTemplate = useDebouncedFn(
     (templateStringToParse: string): void => {
       const vFile = new VFile({ path: 'input.md', value: templateStringToParse });
       let newErrorMessage = '';
       try {
         const templateData = templateFileToNLCSTNodes(vFile);
-        const parsedConfig = JSON.parse(configString) as IConfiguration;
-        const newResult = randomOutlineToArrayCompiler(templateData, parsedConfig);
-        resultSetter(newResult);
+        configSchemaSetter(getConfigSchemaFromTemplate(templateData));
+        if (configFormData === undefined) {
+          throw new Error('模板参数不正确');
+        }
+        resultSetter(randomOutlineToArrayCompiler(templateData, configFormData));
       } catch (e) {
         newErrorMessage += (e as Error).message;
       }
@@ -25,11 +40,11 @@ export function useTemplateGeneration(configString: string) {
     },
     500,
     undefined,
-    [configString],
+    [configFormData],
   );
   useEffect(() => {
     parseAndGenerateFromTemplate(template);
-  }, [template]);
+  }, [template, rerenderHookTrigger]);
 
-  return [template, templateSetter, result, errorMessage] as const;
+  return [rerender, template, templateSetter, result, configSchema, errorMessage] as const;
 }
