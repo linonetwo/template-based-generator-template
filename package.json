@@ -1,8 +1,8 @@
 {
   "name": "tbg",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "template-based-generator-template 基于模板的文本生成器的模板，模生模，凤生凤，老鼠的儿子会打洞。",
-  "main": "dist/index.js",
+  "main": "dist/index.mjs",
   "scripts": {
     "build": "npm run build:types & npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
