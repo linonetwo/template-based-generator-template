@@ -1,4 +1,4 @@
 {
-  "presets": ["@babel/env", "@babel/typescript"],
+  "presets": ["@babel/env", "@babel/typescript", "@babel/react"],
   "plugins": ["macros", "lodash"]
 }

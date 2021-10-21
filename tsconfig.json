@@ -1,6 +1,6 @@
 {
-  "exclude": ["dist"],
-  "include": ["src", "features"],
+  "exclude": ["dist", "public-dist"],
+  "include": ["src", "demo"],
   "ts-node": {
     "files": true,
     "compilerOptions": {
