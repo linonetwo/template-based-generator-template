@@ -2,13 +2,12 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import { babel } from '@rollup/plugin-babel';
-import disablePackages from 'rollup-plugin-disable-packages';
 
 export default {
   input: './src/index.ts',
   output: {
-    file: './dist/index.js',
-    format: 'commonjs',
+    file: './dist/index.mjs',
+    format: 'esm',
     sourcemap: 'inline',
     exports: 'named',
   },

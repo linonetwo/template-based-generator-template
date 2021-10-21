@@ -3,7 +3,7 @@ import { useDebouncedFn } from 'beautiful-react-hooks';
 import { VFile } from 'vfile';
 import type { JSONSchema7 } from 'json-schema';
 // import { reporter } from 'vfile-reporter';
-import { IConfiguration, randomOutlineToArrayCompiler, templateFileToNLCSTNodes, getConfigSchemaFromTemplate, IOutputWIthMetadata, randomOutlineToArrayWithMetadataCompiler } from '../src';
+import { IConfiguration, templateFileToNLCSTNodes, getConfigSchemaFromTemplate, IOutputWIthMetadata, randomOutlineToArrayWithMetadataCompiler } from '../src';
 
 function useTrigger() {
   const [a, f] = useState(false);
