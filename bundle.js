@@ -51000,9 +51000,11 @@
     return NoValueForSlotError;
   }( /*#__PURE__*/_wrapNativeSuper(Error));
 
+  var emptyConfigurationString = '{ "substitutions": {} }';
   /**
    * 从模板里定义的多个大纲里随机抽取一个出来用
    */
+
   function getRandomOutline(outlines) {
     var _sample2;
 
@@ -51116,7 +51118,8 @@
         var slot = _step.value;
         configSchemaBase.properties.substitutions.properties[slot] = {
           type: 'string',
-          title: slot
+          title: slot,
+          "default": slot
         };
       }
     } catch (err) {
@@ -51318,7 +51321,7 @@
   })(["display:flex;flex:1;flex-direction:column;justify-content:center;align-items:flex-start;"]);
 
   function App() {
-    var _useState = react.useState('{ "substitutions": {} }'),
+    var _useState = react.useState(emptyConfigurationString),
         _useState2 = _slicedToArray$1(_useState, 2),
         configString = _useState2[0],
         configStringSetter = _useState2[1];
@@ -51332,6 +51335,11 @@
         _useLocalStorage2 = _slicedToArray$1(_useLocalStorage, 2),
         空白templateContent = _useLocalStorage2[0],
         空白templateContentSetter = _useLocalStorage2[1];
+
+    var _useLocalStorage3 = useLocalStorage('defaultConfigString', emptyConfigurationString),
+        _useLocalStorage4 = _slicedToArray$1(_useLocalStorage3, 2),
+        defaultConfigString = _useLocalStorage4[0],
+        defaultConfigStringSetter = _useLocalStorage4[1];
 
     var configFormData;
 
@@ -51351,6 +51359,7 @@
     react.useEffect(function () {
       templates['空白'] = 空白templateContent;
       templateSetter(templates[templateTab]);
+      configStringSetter(defaultConfigString);
     }, []);
     return /*#__PURE__*/react.createElement(Container, null, /*#__PURE__*/react.createElement(ContentContainer, null, /*#__PURE__*/react.createElement(TemplateInputContainer, null, /*#__PURE__*/react.createElement(Tabs, {
       id: "Tabs",
@@ -51382,7 +51391,9 @@
       formData: configFormData,
       schema: configSchema,
       onChange: function onChange(submitEvent) {
-        configStringSetter(JSON.stringify(submitEvent.formData));
+        var nextConfigString = JSON.stringify(submitEvent.formData);
+        configStringSetter(nextConfigString);
+        defaultConfigStringSetter(nextConfigString);
       },
       onSubmit: function onSubmit() {
         return rerender();
@@ -51392,7 +51403,14 @@
       intent: Intent.PRIMARY,
       fill: true,
       onChange: function onChange(event) {
-        configStringSetter(event.target.value);
+        try {
+          // prevent invalid input
+          var nextConfigString = event.target.value;
+          JSON.parse(nextConfigString); // if no error thrown
+
+          configStringSetter(nextConfigString);
+          defaultConfigStringSetter(nextConfigString);
+        } catch (_unused2) {}
       },
       value: configString
     })), /*#__PURE__*/react.createElement(ErrorMessageContainer, null, errorMessage)), /*#__PURE__*/react.createElement(ResultContainer, null, result.map(function (outputLine, index) {
