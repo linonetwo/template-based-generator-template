@@ -50034,6 +50034,7 @@
 
 
     var titleStack = [];
+    var currentHeadingDepth = 0;
     /** 我们从模板中提取出的所有信息 */
 
     var templateData = {
@@ -50057,8 +50058,9 @@
               titleTextValue = titleTextNode.value;
             } else {
               templateFile.message(new NoTitleContentError(), currentMDASTNode.position);
-            } // 处理大标题
+            }
 
+            currentHeadingDepth = currentMDASTNode.depth; // 处理大标题
 
             if (currentMDASTNode.depth === 1) {
               if (typeof titleTextValue === 'string' && titleTextValue.length > 0) {
@@ -50086,15 +50088,19 @@
                   var outlineTextNode = nextOutlineNode.children[0];
 
                   if ((outlineTextNode === null || outlineTextNode === void 0 ? void 0 : outlineTextNode.type) === 'text') {
-                    foundOutlineNode = true;
+                    foundOutlineNode = true; // 移动当前指针，这样解析完标题节点之后，我们的指针就跳过了大纲区域
+
+                    mdNodeIndex += 1;
 
                     if (templateData.outlines === undefined) {
                       templateData.outlines = [];
                     }
 
                     templateData.outlines.push(outlineTextNode.value.split('\n'));
-                    break;
                   }
+                } else {
+                  // 遇到下一个标题时，跳出。此处默认我们要不就是 Heading 要不就是 Paragraph
+                  break;
                 }
               }
 
@@ -50145,12 +50151,14 @@
             var _get2;
 
             // 到达了根节点，准备往资源库里塞数据，构建一下数据路径
-            var resourcesDataPath = titleStack.join('.'); // 如果下一个节点是标题，这个标题要不就是和之前同级，要不就是更高级的（不会是更低级的，上面的检测保证了），说明要出栈了
+            var resourcesDataPath = titleStack.join('.'); // 如果下一个节点是标题，这个标题要不就是和之前同级，要不就是更高级的（depth 更小的）（不会是更低级的（depth 更大的），上面的检测保证了），说明要出栈了
 
-            var nextHeadingNode = mdastInstance.children[mdNodeIndex + 1];
+            var nextHeadingNode = nextMDASTNode;
 
             if ((nextHeadingNode === null || nextHeadingNode === void 0 ? void 0 : nextHeadingNode.type) === 'heading') {
-              titleStack.pop();
+              for (var popTime = 0; popTime < currentHeadingDepth - nextHeadingNode.depth + 1; popTime += 1) {
+                titleStack.pop();
+              }
             } // 一个 Paragraph 里只会有一个 TextNode
 
 
