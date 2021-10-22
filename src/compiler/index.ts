@@ -61,20 +61,22 @@ export function getRandomArticle(template: ITemplateData, config: IConfiguration
  */
 export function collectSlots(template: ITemplateData): string[] {
   const slots = new Set<string>();
-  getRandomOutline(template.outlines).forEach((outlineLine) => {
-    // 根据大纲获取随机素材
-    const dataPath = outlineLine.split('：').join('.');
-    const paragraph = get(template.resources, dataPath);
-    // 把具体内容填入槽中
-    if (paragraph !== undefined && paragraph.type === 'ParagraphNode') {
-      visit(paragraph as Paragraph, 'TextNode', (textNode: TextNode) => {
-        // 看看是否需要替换槽位
-        if (typeof textNode.slot === 'string') {
-          slots.add(textNode.slot);
-        }
-      });
-    }
-  });
+  template.outlines?.forEach((outline) =>
+    outline.forEach((outlineLine) => {
+      // 根据大纲获取随机素材
+      const dataPath = outlineLine.split('：').join('.');
+      const paragraph = get(template.resources, dataPath);
+      // 把具体内容填入槽中
+      if (paragraph !== undefined && paragraph.type === 'ParagraphNode') {
+        visit(paragraph as Paragraph, 'TextNode', (textNode: TextNode) => {
+          // 看看是否需要替换槽位
+          if (typeof textNode.slot === 'string') {
+            slots.add(textNode.slot);
+          }
+        });
+      }
+    }),
+  );
   return [...slots.keys()];
 }
 
