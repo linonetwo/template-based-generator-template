@@ -11,7 +11,7 @@ const tail = ".md'), 'utf8')";
 // const _ = _ as SetReturnType<typeof _, string>;
 
 /**
- * 在代码里注册模板，方便在生成器代码里使用
+ * 在下面的代码里注册模板，方便在生成器里使用
  */
 export const templates = {
   空白: '',
