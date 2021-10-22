@@ -24559,7 +24559,7 @@
 
   // For instance with the first breakpoint xs: [xs, sm[.
 
-  var values$1 = {
+  var values$2 = {
     xs: 0,
     sm: 600,
     md: 960,
@@ -24571,7 +24571,7 @@
     // It can't be configured as it's used statically for propTypes.
     keys: ['xs', 'sm', 'md', 'lg', 'xl'],
     up: function up(key) {
-      return "@media (min-width:".concat(values$1[key], "px)");
+      return "@media (min-width:".concat(values$2[key], "px)");
     }
   };
   function handleBreakpoints(props, propValue, styleFromPropValue) {
@@ -31147,7 +31147,7 @@
     return children;
   }
 
-  var values = Object.values || function (obj) {
+  var values$1 = Object.values || function (obj) {
     return Object.keys(obj).map(function (k) {
       return obj[k];
     });
@@ -31248,7 +31248,7 @@
           props = _objectWithoutPropertiesLoose$1(_this$props, ["component", "childFactory"]);
 
       var contextValue = this.state.contextValue;
-      var children = values(this.state.children).map(childFactory);
+      var children = values$1(this.state.children).map(childFactory);
       delete props.appear;
       delete props.enter;
       delete props.exit;
@@ -50037,13 +50037,14 @@
     /** 我们从模板中提取出的所有信息 */
 
     var templateData = {
-      outline: [],
+      outlines: [],
       resources: {},
       title: (_templateFile$basenam = templateFile.basename) !== null && _templateFile$basenam !== void 0 ? _templateFile$basenam : ''
     };
 
     for (var mdNodeIndex = 0; mdNodeIndex < mdastInstance.children.length; mdNodeIndex += 1) {
       var currentMDASTNode = mdastInstance.children[mdNodeIndex];
+      var nextMDASTNode = mdastInstance.children[mdNodeIndex + 1];
 
       switch (currentMDASTNode.type) {
         case 'heading':
@@ -50062,15 +50063,18 @@
             if (currentMDASTNode.depth === 1) {
               if (typeof titleTextValue === 'string' && titleTextValue.length > 0) {
                 templateData.title = titleTextValue;
-              } // 大标题的下一个节点即是大纲节点
+              } // 大标题的下几个段落节点即是大纲节点
 
 
-              var nextOutlineNode = mdastInstance.children[mdNodeIndex + 1];
+              var foundOutlineNode = false;
 
-              if ((nextOutlineNode === null || nextOutlineNode === void 0 ? void 0 : nextOutlineNode.type) === 'paragraph') {
-                /**
-                 * ```json
-                 * children: [
+              for (var outlineNodeDetectorIndex = mdNodeIndex + 1; outlineNodeDetectorIndex < mdastInstance.children.length; outlineNodeDetectorIndex += 1) {
+                var nextOutlineNode = mdastInstance.children[outlineNodeDetectorIndex];
+
+                if ((nextOutlineNode === null || nextOutlineNode === void 0 ? void 0 : nextOutlineNode.type) === 'paragraph') {
+                  /**
+                  * ```json
+                  * children: [
                     {
                       type: 'text',
                       value: '做得好的：项目·起\n做得好的：项目·承\n做得好的：项目·转\n做得好的：项目·合',
@@ -50078,16 +50082,28 @@
                     }
                   ]
                   ```
-                 */
-                var outlineTextNode = nextOutlineNode.children[0];
+                  */
+                  var outlineTextNode = nextOutlineNode.children[0];
 
-                if ((outlineTextNode === null || outlineTextNode === void 0 ? void 0 : outlineTextNode.type) === 'text') {
-                  templateData.outline = outlineTextNode.value.split('\n');
-                  break;
+                  if ((outlineTextNode === null || outlineTextNode === void 0 ? void 0 : outlineTextNode.type) === 'text') {
+                    foundOutlineNode = true;
+
+                    if (templateData.outlines === undefined) {
+                      templateData.outlines = [];
+                    }
+
+                    templateData.outlines.push(outlineTextNode.value.split('\n'));
+                    break;
+                  }
                 }
               }
 
-              templateFile.message(new NoOutlineInTemplateError(), nextOutlineNode.position);
+              if (!foundOutlineNode) {
+                var _nextMDASTNode$positi;
+
+                templateFile.message(new NoOutlineInTemplateError(), (_nextMDASTNode$positi = nextMDASTNode === null || nextMDASTNode === void 0 ? void 0 : nextMDASTNode.position) !== null && _nextMDASTNode$positi !== void 0 ? _nextMDASTNode$positi : currentMDASTNode.position);
+              }
+
               break;
             } else {
               // 仅对于二级以上标题建栈，因为二级以上标题才算是开始构建模板内容树
@@ -50204,6 +50220,104 @@
   }
 
   var _baseRandom = baseRandom;
+
+  /**
+   * A specialized version of `_.sample` for arrays.
+   *
+   * @private
+   * @param {Array} array The array to sample.
+   * @returns {*} Returns the random element.
+   */
+  function arraySample(array) {
+    var length = array.length;
+    return length ? array[_baseRandom(0, length - 1)] : undefined;
+  }
+
+  var _arraySample = arraySample;
+
+  /**
+   * The base implementation of `_.values` and `_.valuesIn` which creates an
+   * array of `object` property values corresponding to the property names
+   * of `props`.
+   *
+   * @private
+   * @param {Object} object The object to query.
+   * @param {Array} props The property names to get values for.
+   * @returns {Object} Returns the array of property values.
+   */
+  function baseValues(object, props) {
+    return _arrayMap(props, function(key) {
+      return object[key];
+    });
+  }
+
+  var _baseValues = baseValues;
+
+  /**
+   * Creates an array of the own enumerable string keyed property values of `object`.
+   *
+   * **Note:** Non-object values are coerced to objects.
+   *
+   * @static
+   * @since 0.1.0
+   * @memberOf _
+   * @category Object
+   * @param {Object} object The object to query.
+   * @returns {Array} Returns the array of property values.
+   * @example
+   *
+   * function Foo() {
+   *   this.a = 1;
+   *   this.b = 2;
+   * }
+   *
+   * Foo.prototype.c = 3;
+   *
+   * _.values(new Foo);
+   * // => [1, 2] (iteration order is not guaranteed)
+   *
+   * _.values('hi');
+   * // => ['h', 'i']
+   */
+  function values(object) {
+    return object == null ? [] : _baseValues(object, keys_1(object));
+  }
+
+  var values_1 = values;
+
+  /**
+   * The base implementation of `_.sample`.
+   *
+   * @private
+   * @param {Array|Object} collection The collection to sample.
+   * @returns {*} Returns the random element.
+   */
+  function baseSample(collection) {
+    return _arraySample(values_1(collection));
+  }
+
+  var _baseSample = baseSample;
+
+  /**
+   * Gets a random element from `collection`.
+   *
+   * @static
+   * @memberOf _
+   * @since 2.0.0
+   * @category Collection
+   * @param {Array|Object} collection The collection to sample.
+   * @returns {*} Returns the random element.
+   * @example
+   *
+   * _.sample([1, 2, 3, 4]);
+   * // => 2
+   */
+  function sample(collection) {
+    var func = isArray_1(collection) ? _arraySample : _baseSample;
+    return func(collection);
+  }
+
+  var sample_1 = sample;
 
   /** Used to match a single whitespace character. */
   var reWhitespace = /\s/;
@@ -50879,6 +50993,14 @@
   }( /*#__PURE__*/_wrapNativeSuper(Error));
 
   /**
+   * 从模板里定义的多个大纲里随机抽取一个出来用
+   */
+  function getRandomOutline(outlines) {
+    var _sample2;
+
+    return (_sample2 = sample_1(outlines !== null && outlines !== void 0 ? outlines : [])) !== null && _sample2 !== void 0 ? _sample2 : [];
+  }
+  /**
    * 将解析出的模板结构化数据转换为 NLCST Root 节点
    * Paragraph > Sentence > Word > Text
    *
@@ -50886,8 +51008,9 @@
    * Sentence：模板库里的内容单位，每个对应模板里一个自然段
    * Word-Text：具体的模板内容，每个对应模板里一行
    */
+
   function getRandomArticle(template, config) {
-    var paragraphs = template.outline.map(function (outlineLine) {
+    var paragraphs = getRandomOutline(template.outlines).map(function (outlineLine) {
       // 根据大纲获取随机素材
       var dataPath = outlineLine.split('：').join('.');
 
@@ -50933,7 +51056,7 @@
 
   function collectSlots(template) {
     var slots = new Set();
-    template.outline.forEach(function (outlineLine) {
+    getRandomOutline(template.outlines).forEach(function (outlineLine) {
       // 根据大纲获取随机素材
       var dataPath = outlineLine.split('：').join('.');
 
