@@ -44,6 +44,7 @@ export function templateFileToNLCSTNodes(templateFile: VFile): ITemplateData {
   // 用状态机和栈把它搞成树
   /** 保存之前经过的标题 */
   const titleStack = [];
+  let currentHeadingDepth = 0;
   /** 我们从模板中提取出的所有信息 */
   const templateData: ITemplateData = {
     outlines: [],
@@ -64,6 +65,7 @@ export function templateFileToNLCSTNodes(templateFile: VFile): ITemplateData {
         } else {
           templateFile.message(new NoTitleContentError(), currentMDASTNode.position);
         }
+        currentHeadingDepth = currentMDASTNode.depth;
         // 处理大标题
         if (currentMDASTNode.depth === 1) {
           if (typeof titleTextValue === 'string' && titleTextValue.length > 0) {
@@ -102,9 +104,6 @@ export function templateFileToNLCSTNodes(templateFile: VFile): ITemplateData {
           }
           if (!foundOutlineNode) {
             templateFile.message(new NoOutlineInTemplateError(), nextMDASTNode?.position ?? currentMDASTNode.position);
-          } else {
-            // 由于我们接下来要在循环那边 +1，而我们已经找到过大纲节点，在 foundOutlineNode 那边加过 1 了，所以得减回来一次
-            mdNodeIndex -= 1;
           }
           break;
         } else {
@@ -140,10 +139,12 @@ export function templateFileToNLCSTNodes(templateFile: VFile): ITemplateData {
       case 'paragraph': {
         // 到达了根节点，准备往资源库里塞数据，构建一下数据路径
         const resourcesDataPath = titleStack.join('.');
-        // 如果下一个节点是标题，这个标题要不就是和之前同级，要不就是更高级的（不会是更低级的，上面的检测保证了），说明要出栈了
-        const nextHeadingNode = mdastInstance.children[mdNodeIndex + 1];
+        // 如果下一个节点是标题，这个标题要不就是和之前同级，要不就是更高级的（depth 更小的）（不会是更低级的（depth 更大的），上面的检测保证了），说明要出栈了
+        const nextHeadingNode = nextMDASTNode;
         if (nextHeadingNode?.type === 'heading') {
-          titleStack.pop();
+          for (let popTime = 0; popTime < currentHeadingDepth - nextHeadingNode.depth + 1; popTime += 1) {
+            titleStack.pop();
+          }
         }
         // 一个 Paragraph 里只会有一个 TextNode
         const paragraphTextNode = currentMDASTNode.children[0];
