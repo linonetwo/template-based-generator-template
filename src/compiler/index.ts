@@ -10,6 +10,7 @@ import type { JSONSchema7 } from 'json-schema';
 export interface IConfiguration {
   substitutions?: Record<string, string>;
 }
+export const emptyConfigurationString = '{ "substitutions": {} }';
 
 /**
  * 从模板里定义的多个大纲里随机抽取一个出来用
@@ -104,6 +105,7 @@ export function getConfigSchemaFromTemplate(templateData: ITemplateData): JSONSc
     (configSchemaBase.properties!.substitutions as JSONSchema7).properties![slot] = {
       type: 'string',
       title: slot,
+      default: slot,
     };
   }
   return configSchemaBase;

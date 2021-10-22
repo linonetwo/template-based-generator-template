@@ -6,7 +6,7 @@ import { withTheme } from '@rjsf/core';
 import { Theme as MaterialUITheme } from '@rjsf/material-ui';
 import { useLocalStorage } from 'beautiful-react-hooks';
 import { useTemplateGeneration } from './useTemplateGeneration';
-import type { IConfiguration } from '../src';
+import { emptyConfigurationString, IConfiguration } from '../src';
 import { templates } from '../src';
 import { ResultLine } from './result';
 
@@ -65,9 +65,10 @@ const ResultContainer = styled(Card)`
 `;
 
 function App(): JSX.Element {
-  const [configString, configStringSetter] = useState<string>('{ "substitutions": {} }');
+  const [configString, configStringSetter] = useState<string>(emptyConfigurationString);
   const [templateTab, templateTabSetter] = useState<keyof typeof templates>('空白');
   const [空白templateContent, 空白templateContentSetter] = useLocalStorage<string>('空白templateContent', templates['空白']);
+  const [defaultConfigString, defaultConfigStringSetter] = useLocalStorage<string>('defaultConfigString', emptyConfigurationString);
   let configFormData: IConfiguration | undefined;
   try {
     configFormData = JSON.parse(configString) as IConfiguration;
@@ -76,6 +77,7 @@ function App(): JSX.Element {
   useEffect(() => {
     templates['空白'] = 空白templateContent;
     templateSetter(templates[templateTab]);
+    configStringSetter(defaultConfigString);
   }, []);
   return (
     <Container>
@@ -110,7 +112,9 @@ function App(): JSX.Element {
                 formData={configFormData}
                 schema={configSchema}
                 onChange={(submitEvent) => {
-                  configStringSetter(JSON.stringify(submitEvent.formData));
+                  const nextConfigString = JSON.stringify(submitEvent.formData);
+                  configStringSetter(nextConfigString);
+                  defaultConfigStringSetter(nextConfigString);
                 }}
                 onSubmit={() => rerender()}
               />
@@ -120,7 +124,14 @@ function App(): JSX.Element {
               intent={Intent.PRIMARY}
               fill={true}
               onChange={(event) => {
-                configStringSetter(event.target.value);
+                try {
+                  // prevent invalid input
+                  const nextConfigString = event.target.value;
+                  JSON.parse(nextConfigString);
+                  // if no error thrown
+                  configStringSetter(nextConfigString);
+                  defaultConfigStringSetter(nextConfigString);
+                } catch {}
               }}
               value={configString}
             />
