@@ -42234,7 +42234,7 @@
   /* eslint-disable @typescript-eslint/no-unsafe-call */
 
   /**
-   * 在代码里注册模板，方便在生成器代码里使用
+   * 在下面的代码里注册模板，方便在生成器里使用
    */
 
   var templates = {
