@@ -2,6 +2,7 @@ import { get, set } from 'lodash';
 import { VFile } from 'vfile';
 import { TextNode, Sentence, Paragraph, Word } from 'nlcst-types';
 import { fromMarkdown } from 'mdast-util-from-markdown';
+import type { Content } from 'mdast-util-from-markdown/lib';
 import { u } from 'unist-builder';
 import { NoOutlineInTemplateError, NoBigTitleInTemplateError, NoTitleContentError, BadTextBetweenTitleError, NoTextBetweenTitleError } from './errors';
 
@@ -49,6 +50,7 @@ export function templateFileToNLCSTNodes(templateFile: VFile): ITemplateData {
 
   for (let mdNodeIndex = 0; mdNodeIndex < mdastInstance.children.length; mdNodeIndex += 1) {
     const currentMDASTNode = mdastInstance.children[mdNodeIndex];
+    const nextMDASTNode = mdastInstance.children[mdNodeIndex + 1] as Content | undefined;
     switch (currentMDASTNode.type) {
       case 'heading': {
         // 首先标题得有内容，言之有物
@@ -64,10 +66,12 @@ export function templateFileToNLCSTNodes(templateFile: VFile): ITemplateData {
           if (typeof titleTextValue === 'string' && titleTextValue.length > 0) {
             templateData.title = titleTextValue;
           }
-          // 大标题的下一个节点即是大纲节点
-          const nextOutlineNode = mdastInstance.children[mdNodeIndex + 1];
-          if (nextOutlineNode?.type === 'paragraph') {
-            /**
+          // 大标题的下几个段落节点即是大纲节点
+          let foundOutlineNode = false;
+          for (let outlineNodeDetectorIndex = mdNodeIndex + 1; outlineNodeDetectorIndex < mdastInstance.children.length; outlineNodeDetectorIndex += 1) {
+            const nextOutlineNode = mdastInstance.children[outlineNodeDetectorIndex];
+            if (nextOutlineNode?.type === 'paragraph') {
+              /**
              * ```json
              * children: [
                 {
@@ -78,13 +82,17 @@ export function templateFileToNLCSTNodes(templateFile: VFile): ITemplateData {
               ]
               ```
              */
-            const outlineTextNode = nextOutlineNode.children[0];
-            if (outlineTextNode?.type === 'text') {
-              templateData.outline = outlineTextNode.value.split('\n');
-              break;
+              const outlineTextNode = nextOutlineNode.children[0];
+              if (outlineTextNode?.type === 'text') {
+                foundOutlineNode = true;
+                templateData.outline = outlineTextNode.value.split('\n');
+                break;
+              }
             }
           }
-          templateFile.message(new NoOutlineInTemplateError(), nextOutlineNode.position);
+          if (!foundOutlineNode) {
+            templateFile.message(new NoOutlineInTemplateError(), nextMDASTNode?.position ?? currentMDASTNode.position);
+          }
           break;
         } else {
           // 仅对于二级以上标题建栈，因为二级以上标题才算是开始构建模板内容树
