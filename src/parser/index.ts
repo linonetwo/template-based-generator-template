@@ -20,7 +20,10 @@ export type ITemplateResource = Record<string, Paragraph | undefined | ITemplate
 interface ITemplateResourceValue extends ITemplateResource {}
 
 export interface ITemplateData {
-  outline: string[];
+  /**
+   * 使用模板内容的大纲，每一行相当于对指定标题的引用。可以有多个大纲，生成时将随机抽取一个大纲来生成，然后从引用的标题里随机抽取文本。
+   */
+  outlines?: string[][];
   resources: ITemplateResource;
   title: string;
 }
@@ -43,7 +46,7 @@ export function templateFileToNLCSTNodes(templateFile: VFile): ITemplateData {
   const titleStack = [];
   /** 我们从模板中提取出的所有信息 */
   const templateData: ITemplateData = {
-    outline: [],
+    outlines: [],
     resources: {},
     title: templateFile.basename ?? '',
   };
@@ -85,7 +88,10 @@ export function templateFileToNLCSTNodes(templateFile: VFile): ITemplateData {
               const outlineTextNode = nextOutlineNode.children[0];
               if (outlineTextNode?.type === 'text') {
                 foundOutlineNode = true;
-                templateData.outline = outlineTextNode.value.split('\n');
+                if (templateData.outlines === undefined) {
+                  templateData.outlines = [];
+                }
+                templateData.outlines.push(outlineTextNode.value.split('\n'));
                 break;
               }
             }

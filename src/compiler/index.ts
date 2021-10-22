@@ -1,5 +1,5 @@
 import { u } from 'unist-builder';
-import { cloneDeep, get, random } from 'lodash';
+import { cloneDeep, get, random, sample } from 'lodash';
 import { Paragraph, Sentence, TextNode, Word } from 'nlcst-types';
 import { visit } from 'unist-util-visit';
 import { Root, Content, toString } from 'nlcst-to-string';
@@ -12,6 +12,13 @@ export interface IConfiguration {
 }
 
 /**
+ * 从模板里定义的多个大纲里随机抽取一个出来用
+ */
+export function getRandomOutline(outlines: ITemplateData['outlines'] | undefined): string[] {
+  return sample(outlines ?? []) ?? [];
+}
+
+/**
  * 将解析出的模板结构化数据转换为 NLCST Root 节点
  * Paragraph > Sentence > Word > Text
  *
@@ -20,7 +27,7 @@ export interface IConfiguration {
  * Word-Text：具体的模板内容，每个对应模板里一行
  */
 export function getRandomArticle(template: ITemplateData, config: IConfiguration): Root {
-  const paragraphs = template.outline.map((outlineLine) => {
+  const paragraphs = getRandomOutline(template.outlines).map((outlineLine) => {
     // 根据大纲获取随机素材
     const dataPath = outlineLine.split('：').join('.');
     const paragraph = get(template.resources, dataPath);
@@ -54,7 +61,7 @@ export function getRandomArticle(template: ITemplateData, config: IConfiguration
  */
 export function collectSlots(template: ITemplateData): string[] {
   const slots = new Set<string>();
-  template.outline.forEach((outlineLine) => {
+  getRandomOutline(template.outlines).forEach((outlineLine) => {
     // 根据大纲获取随机素材
     const dataPath = outlineLine.split('：').join('.');
     const paragraph = get(template.resources, dataPath);
