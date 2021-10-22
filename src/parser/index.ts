@@ -88,16 +88,23 @@ export function templateFileToNLCSTNodes(templateFile: VFile): ITemplateData {
               const outlineTextNode = nextOutlineNode.children[0];
               if (outlineTextNode?.type === 'text') {
                 foundOutlineNode = true;
+                // 移动当前指针，这样解析完标题节点之后，我们的指针就跳过了大纲区域
+                mdNodeIndex += 1;
                 if (templateData.outlines === undefined) {
                   templateData.outlines = [];
                 }
                 templateData.outlines.push(outlineTextNode.value.split('\n'));
-                break;
               }
+            } else {
+              // 遇到下一个标题时，跳出。此处默认我们要不就是 Heading 要不就是 Paragraph
+              break;
             }
           }
           if (!foundOutlineNode) {
             templateFile.message(new NoOutlineInTemplateError(), nextMDASTNode?.position ?? currentMDASTNode.position);
+          } else {
+            // 由于我们接下来要在循环那边 +1，而我们已经找到过大纲节点，在 foundOutlineNode 那边加过 1 了，所以得减回来一次
+            mdNodeIndex -= 1;
           }
           break;
         } else {
