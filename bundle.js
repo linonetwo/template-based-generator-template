@@ -51063,22 +51063,26 @@
    */
 
   function collectSlots(template) {
+    var _template$outlines;
+
     var slots = new Set();
-    getRandomOutline(template.outlines).forEach(function (outlineLine) {
-      // 根据大纲获取随机素材
-      var dataPath = outlineLine.split('：').join('.');
+    (_template$outlines = template.outlines) === null || _template$outlines === void 0 ? void 0 : _template$outlines.forEach(function (outline) {
+      return outline.forEach(function (outlineLine) {
+        // 根据大纲获取随机素材
+        var dataPath = outlineLine.split('：').join('.');
 
-      var paragraph = get_1$1(template.resources, dataPath); // 把具体内容填入槽中
+        var paragraph = get_1$1(template.resources, dataPath); // 把具体内容填入槽中
 
 
-      if (paragraph !== undefined && paragraph.type === 'ParagraphNode') {
-        visit(paragraph, 'TextNode', function (textNode) {
-          // 看看是否需要替换槽位
-          if (typeof textNode.slot === 'string') {
-            slots.add(textNode.slot);
-          }
-        });
-      }
+        if (paragraph !== undefined && paragraph.type === 'ParagraphNode') {
+          visit(paragraph, 'TextNode', function (textNode) {
+            // 看看是否需要替换槽位
+            if (typeof textNode.slot === 'string') {
+              slots.add(textNode.slot);
+            }
+          });
+        }
+      });
     });
     return _toConsumableArray$6(slots.keys());
   }
