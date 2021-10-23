@@ -1,10 +1,11 @@
 {
   "name": "tbg",
-  "version": "0.1.1",
+  "version": "0.1.4",
   "description": "template-based-generator-template 基于模板的文本生成器的模板，模生模，凤生凤，老鼠的儿子会打洞。",
   "main": "dist/index.mjs",
+  "types": "dist/src/index.d.ts",
   "scripts": {
-    "build": "npm run build:types & npm run build:js",
+    "build": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "rollup -c",
     "build:demo": "rollup -c rollup.config.demo.js && cp demo/index.html public-dist/index.html",
@@ -19,7 +20,8 @@
     "url": "git+https://github.com/linonetwo/template-based-generator-template.git"
   },
   "files": [
-    "dist/**/*",
+    "dist/**/*.mjs",
+    "dist/**/*.d.ts",
     "README.md"
   ],
   "keywords": [
@@ -107,6 +109,7 @@
     "rollup": "^2.27.1",
     "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-serve": "^1.1.0",
+    "rxjs": "^7.4.0",
     "typescript": "4.4.4",
     "typesync": "0.8.0"
   }
