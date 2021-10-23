@@ -1,6 +1,10 @@
-# Template-based-Generator-Template
+# Template-Based-Generator-Template
 
-TGT 是一个基于**模**板的文本**生**成器的**模**板，模生模，凤生凤，老鼠的儿子会打洞。
+TBGT 是一个基于**模**板的文本**生**成器的**模**板，模生模，凤生凤，老鼠的儿子会打洞。
+
+本模板是一个 Github Template，点击页面顶部按钮区的「Use this template」应用本模板可以得到一个你自己的文本生成器。
+
+你也可以在代码里使用 `npm i tbg` 来赋能你自己的应用，使用方法详见 Demo 里的代码。
 
 ## 用处
 
