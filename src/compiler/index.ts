@@ -105,7 +105,6 @@ export function getConfigSchemaFromTemplate(templateData: ITemplateData): JSONSc
     (configSchemaBase.properties!.substitutions as JSONSchema7).properties![slot] = {
       type: 'string',
       title: slot,
-      default: slot,
     };
   }
   return configSchemaBase;

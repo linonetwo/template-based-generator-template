@@ -53,6 +53,7 @@
     "type-fest": "^2.5.1",
     "unist-builder": "^3.0.0",
     "unist-util-visit": "^4.1.0",
+    "use-query-string": "^2.3.0",
     "vfile": "^5.1.1",
     "vfile-reporter": "^7.0.2"
   },

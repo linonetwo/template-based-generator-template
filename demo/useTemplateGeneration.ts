@@ -3,7 +3,14 @@ import { useDebouncedFn } from 'beautiful-react-hooks';
 import { VFile } from 'vfile';
 import type { JSONSchema7 } from 'json-schema';
 // import { reporter } from 'vfile-reporter';
-import { IConfiguration, templateFileToNLCSTNodes, getConfigSchemaFromTemplate, IOutputWIthMetadata, randomOutlineToArrayWithMetadataCompiler } from '../src';
+import {
+  IConfiguration,
+  templateFileToNLCSTNodes,
+  getConfigSchemaFromTemplate,
+  IOutputWIthMetadata,
+  randomOutlineToArrayWithMetadataCompiler,
+  ITemplateData,
+} from '../src';
 
 function useTrigger() {
   const [a, f] = useState(false);
@@ -15,15 +22,16 @@ function useTrigger() {
   ] as const;
 }
 
-export function useTemplateGeneration(configFormData: IConfiguration | undefined) {
+export function useTemplateGeneration(configFormData: IConfiguration | undefined, fileName = 'input.md') {
   const [template, templateSetter] = useState('');
   const [result, resultSetter] = useState<Array<IOutputWIthMetadata<any[]>>>([]);
+  const [templateData, templateDataSetter] = useState<ITemplateData | undefined>();
   const [errorMessage, errorMessageSetter] = useState('');
   const [configSchema, configSchemaSetter] = useState<JSONSchema7 | undefined>();
   const [rerender, rerenderHookTrigger] = useTrigger();
   const parseAndGenerateFromTemplate = useDebouncedFn(
     (templateStringToParse: string): void => {
-      const vFile = new VFile({ path: 'input.md', value: templateStringToParse });
+      const vFile = new VFile({ path: fileName, value: templateStringToParse });
       let newErrorMessage = '';
       try {
         const templateData = templateFileToNLCSTNodes(vFile);
@@ -31,6 +39,7 @@ export function useTemplateGeneration(configFormData: IConfiguration | undefined
         if (configFormData === undefined) {
           throw new Error('模板参数不正确');
         }
+        templateDataSetter(templateData);
         resultSetter(randomOutlineToArrayWithMetadataCompiler(templateData, configFormData));
       } catch (e) {
         newErrorMessage += (e as Error).message;
@@ -46,5 +55,5 @@ export function useTemplateGeneration(configFormData: IConfiguration | undefined
     parseAndGenerateFromTemplate(template);
   }, [template, rerenderHookTrigger]);
 
-  return [rerender, template, templateSetter, result, configSchema, errorMessage] as const;
+  return [rerender, template, templateSetter, result, configSchema, errorMessage, templateData] as const;
 }

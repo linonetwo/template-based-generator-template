@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { Card, Intent, Tab, Tabs, TextArea } from '@blueprintjs/core';
 import { withTheme } from '@rjsf/core';
 import { Theme as MaterialUITheme } from '@rjsf/material-ui';
+import { pick } from 'lodash';
 import { useLocalStorage } from 'beautiful-react-hooks';
+import useQueryString from 'use-query-string';
 import { useTemplateGeneration } from './useTemplateGeneration';
-import { emptyConfigurationString, IConfiguration } from '../src';
+import { collectSlots, emptyConfigurationString, IConfiguration, templateFileToNLCSTNodes } from '../src';
 import { templates } from '../src';
 import { ResultLine } from './result';
+import { VFile } from 'vfile';
 
 const Form = withTheme(MaterialUITheme);
 
@@ -33,6 +36,7 @@ const TemplateInputContainer = styled(Card)`
   margin-right: 10px;
   & textarea {
     display: flex;
+    max-height: 80vh;
     flex: 3;
   }
 `;
@@ -64,8 +68,13 @@ const ResultContainer = styled(Card)`
   align-items: flex-start;
 `;
 
+function updateQuery(path: string) {
+  window.history.pushState(null, document.title, path);
+}
+
 function App(): JSX.Element {
   const [configString, configStringSetter] = useState<string>(emptyConfigurationString);
+  const queryString = useQueryString(window.location, updateQuery);
   const [templateTab, templateTabSetter] = useState<keyof typeof templates>('空白');
   const [空白templateContent, 空白templateContentSetter] = useLocalStorage<string>('空白templateContent', templates['空白']);
   const [defaultConfigString, defaultConfigStringSetter] = useLocalStorage<string>('defaultConfigString', emptyConfigurationString);
@@ -73,12 +82,45 @@ function App(): JSX.Element {
   try {
     configFormData = JSON.parse(configString) as IConfiguration;
   } catch {}
-  const [rerender, template, templateSetter, result, configSchema, errorMessage] = useTemplateGeneration(configFormData);
+  const [rerender, template, templateSetter, result, configSchema, errorMessage, templateData] = useTemplateGeneration(configFormData, `${templateTab}.md`);
   useEffect(() => {
     templates['空白'] = 空白templateContent;
-    templateSetter(templates[templateTab]);
+    const tabFromQueryString = queryString[0].tab as keyof typeof templates | undefined;
+    if (tabFromQueryString) {
+      templateTabSetter(tabFromQueryString);
+      templateSetter(templates[tabFromQueryString]);
+    } else {
+      templateSetter(templates[templateTab]);
+    }
+    const configStringFromQueryString = queryString[0].conf as string | undefined;
+    if (configStringFromQueryString) {
+      try {
+        JSON.parse(configStringFromQueryString);
+        defaultConfigStringSetter(configStringFromQueryString);
+      } catch {}
+    }
     configStringSetter(defaultConfigString);
   }, []);
+
+  const updateConfigString = useCallback(
+    (nextConfigString: string) => {
+      const parsedConfig = JSON.parse(nextConfigString);
+      // if no error thrown
+      configStringSetter(nextConfigString);
+      defaultConfigStringSetter(nextConfigString);
+      let usedSlots: string[] = [];
+      if (templateData !== undefined) {
+        usedSlots = collectSlots(templateData);
+      } else {
+        const vFile = new VFile({ path: 'input.md', value: template });
+        const templateDataTemp = templateFileToNLCSTNodes(vFile);
+        usedSlots = collectSlots(templateDataTemp);
+      }
+      queryString[1]({ conf: JSON.stringify({ ...parsedConfig, substitutions: pick(parsedConfig.substitutions, usedSlots) }) });
+    },
+    [templateData, template],
+  );
+
   return (
     <Container>
       <ContentContainer>
@@ -88,6 +130,7 @@ function App(): JSX.Element {
             onChange={(nextTabName: keyof typeof templates) => {
               templateTabSetter(nextTabName);
               templateSetter(templates[nextTabName]);
+              queryString[1]({ tab: nextTabName });
             }}
             selectedTabId={templateTab}>
             {Object.keys(templates).map((templateName) => (
@@ -113,8 +156,7 @@ function App(): JSX.Element {
                 schema={configSchema}
                 onChange={(submitEvent) => {
                   const nextConfigString = JSON.stringify(submitEvent.formData);
-                  configStringSetter(nextConfigString);
-                  defaultConfigStringSetter(nextConfigString);
+                  updateConfigString(nextConfigString);
                 }}
                 onSubmit={() => rerender()}
               />
@@ -127,10 +169,7 @@ function App(): JSX.Element {
                 try {
                   // prevent invalid input
                   const nextConfigString = event.target.value;
-                  JSON.parse(nextConfigString);
-                  // if no error thrown
-                  configStringSetter(nextConfigString);
-                  defaultConfigStringSetter(nextConfigString);
+                  updateConfigString(nextConfigString);
                 } catch {}
               }}
               value={configString}
