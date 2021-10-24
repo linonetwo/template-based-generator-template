@@ -121,13 +121,13 @@ function App(): JSX.Element {
       }
       queryString[1]({ conf: JSON.stringify({ ...parsedConfig, sub: pick(parsedConfig.sub, usedSlots) }) });
     },
-    [templateData, template],
+    [templateData, template, queryString],
   );
 
   const updateResultDisplayMode = useCallback((nextResultDisplayMode: ResultDisplayMode) => {
     resultDisplayModeSetter(nextResultDisplayMode);
     queryString[1]({ mode: String(nextResultDisplayMode) });
-  }, []);
+  }, [queryString]);
 
   const inputGroup = (
     <TemplateInputContainer>
