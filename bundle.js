@@ -52240,14 +52240,15 @@
   var ResultDisplayMode;
 
   (function (ResultDisplayMode) {
-    ResultDisplayMode[ResultDisplayMode["card"] = 0] = "card";
+    ResultDisplayMode[ResultDisplayMode["share"] = 0] = "share";
     ResultDisplayMode[ResultDisplayMode["paragraph"] = 1] = "paragraph";
+    ResultDisplayMode[ResultDisplayMode["card"] = 2] = "card";
   })(ResultDisplayMode || (ResultDisplayMode = {}));
 
   var ResultContainer = styled$3(Card).withConfig({
     displayName: "result__ResultContainer",
     componentId: "sc-1upv8qs-0"
-  })(["display:flex;flex:1;flex-direction:column;justify-content:flex-start;align-items:flex-start;max-height:95vh;overflow:scroll;"]);
+  })(["display:flex;flex:1;flex-direction:column;justify-content:flex-start;align-items:flex-start;max-height:95vh;overflow:scroll;padding:20px;"]);
   var ResultParagraph = styled$3.p.withConfig({
     displayName: "result__ResultParagraph",
     componentId: "sc-1upv8qs-1"
@@ -52276,9 +52277,12 @@
           }));
         }
 
+      case ResultDisplayMode.share:
       case ResultDisplayMode.paragraph:
         {
-          return /*#__PURE__*/react.createElement(ResultContainer, null, props.result.map(function (outputLine, index) {
+          return /*#__PURE__*/react.createElement(ResultContainer, {
+            as: "article"
+          }, props.result.map(function (outputLine, index) {
             return /*#__PURE__*/react.createElement(ResultParagraph, {
               key: index
             }, outputLine.value);
@@ -52386,6 +52390,11 @@
       }
 
       configStringSetter(defaultConfigString);
+      var resultDisplayModeFromQueryString = queryString[0].mode;
+
+      if (resultDisplayModeFromQueryString) {
+        resultDisplayModeSetter(Number(resultDisplayModeFromQueryString));
+      }
     }, []);
     var updateConfigString = react.useCallback(function (nextConfigString) {
       var parsedConfig = JSON.parse(nextConfigString); // if no error thrown
@@ -52411,7 +52420,13 @@
         }))
       });
     }, [templateData, template]);
-    return /*#__PURE__*/react.createElement(Container, null, /*#__PURE__*/react.createElement(ContentContainer, null, /*#__PURE__*/react.createElement(TemplateInputContainer, null, /*#__PURE__*/react.createElement(Tabs, {
+    var updateResultDisplayMode = react.useCallback(function (nextResultDisplayMode) {
+      resultDisplayModeSetter(nextResultDisplayMode);
+      queryString[1]({
+        mode: String(nextResultDisplayMode)
+      });
+    }, []);
+    var inputGroup = /*#__PURE__*/react.createElement(TemplateInputContainer, null, /*#__PURE__*/react.createElement(Tabs, {
       id: "Tabs",
       onChange: function onChange(nextTabName) {
         templateTabSetter(nextTabName);
@@ -52462,15 +52477,21 @@
         } catch (_unused3) {}
       },
       value: configString
-    })), /*#__PURE__*/react.createElement(ErrorMessageContainer, null, errorMessage)), /*#__PURE__*/react.createElement(ResultDisplayModeSelectContainer, null, /*#__PURE__*/react.createElement(ButtonGroup, null, /*#__PURE__*/react.createElement(Button$2, {
+    })), /*#__PURE__*/react.createElement(ErrorMessageContainer, null, errorMessage));
+    return /*#__PURE__*/react.createElement(Container, null, /*#__PURE__*/react.createElement(ContentContainer, null, resultDisplayMode !== ResultDisplayMode.share && inputGroup, /*#__PURE__*/react.createElement(ResultDisplayModeSelectContainer, null, /*#__PURE__*/react.createElement(ButtonGroup, null, /*#__PURE__*/react.createElement(Button$2, {
+      icon: "share",
+      onClick: function onClick() {
+        return updateResultDisplayMode(ResultDisplayMode.share);
+      }
+    }, "\u5206\u4EAB\u6A21\u5F0F"), /*#__PURE__*/react.createElement(Button$2, {
       icon: "eye-on",
       onClick: function onClick() {
-        return resultDisplayModeSetter(ResultDisplayMode.paragraph);
+        return updateResultDisplayMode(ResultDisplayMode.paragraph);
       }
     }, "\u9605\u8BFB\u6A21\u5F0F"), /*#__PURE__*/react.createElement(Button$2, {
       icon: "database",
       onClick: function onClick() {
-        return resultDisplayModeSetter(ResultDisplayMode.card);
+        return updateResultDisplayMode(ResultDisplayMode.card);
       }
     }, "\u5143\u4FE1\u606F\u6A21\u5F0F"))), /*#__PURE__*/react.createElement(GenerationResult, {
       result: result,
