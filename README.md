@@ -18,13 +18,9 @@ TBGT 是一个基于**模**板的文本**生**成器的**模**板，模生模，
 ### 如何制作你自己的文本生成器
 
 1. 首先点击「Use this template」按钮自动生成出你自己的文本生成器仓库。
-1. 然后打开项目文件夹 `src/data/templates` 可以看到里面有一些实例的 Markdown 文件。你可以学习一下下面我们专用的 Markdown 写法写出自己的模板 md 文件放置在这个文件夹里。
-1. 配置生成器网页上要显示哪些模板 md 文件：打开 `src/data/index.ts` 文件，然后跟从下面的步骤：
+1. 然后打开项目目录里的 `templates` 文件夹，可以看到里面有一些示例的 Markdown 文件。你可以学习一下下面我们专用的 Markdown 写法写出自己的模板 md 文件放置在这个文件夹里，这个 md 文件可以在 Typora、[太记](https://github.com/tiddly-gittly/TiddlyGit-Desktop)、Logseq 等笔记软件里写完后导出来放在这里
 
-1. 删去 `空白: '',` 这一行内容，这样你的网页上就不会有那个空白的 tab 了
-1. 模仿 `'360 评估': _`${importExport}360 评估${tail}` as string,` 的写法，复制黏贴这一行，然后把这一行里面的 `360 评估` 替换为你新增的 md 文件的文件名。
-
-然后你的项目应该就会自动部署 Github Pages 自动生成一个自动生成文本的网页啦！
+然后你的项目应该就会自动部署 Github Pages 自动生成一个自动生成文本的网页啦！别忘了[允许 Github Pages 生成外链](https://docs.github.com/cn/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)。
 
 ## 模板
 
