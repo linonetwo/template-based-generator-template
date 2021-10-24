@@ -52248,7 +52248,7 @@
   var ResultContainer = styled$3(Card).withConfig({
     displayName: "result__ResultContainer",
     componentId: "sc-1upv8qs-0"
-  })(["display:flex;flex:1;flex-direction:column;justify-content:flex-start;align-items:flex-start;max-height:95vh;overflow:scroll;padding:1rem;font-size:1.8rem;"]);
+  })(["display:flex;flex:1;flex-direction:column;justify-content:flex-start;align-items:flex-start;max-height:100vh;overflow:scroll;padding:1rem;font-size:1.8rem;"]);
   var ResultParagraph = styled$3.p.withConfig({
     displayName: "result__ResultParagraph",
     componentId: "sc-1upv8qs-1"
@@ -52291,13 +52291,13 @@
     }
   }
 
-  var GlobalStyle = We([""]);
+  var GlobalStyle = We(["body{height:100vh;min-height:100vh;#app{height:100%;width:100%;}}"]);
 
   var Form = withTheme(Theme);
   var Container = styled$3.div.withConfig({
     displayName: "app__Container",
     componentId: "sc-z8fit0-0"
-  })(["display:flex;flex-direction:column;width:100%;min-height:90vh;"]);
+  })(["display:flex;flex-direction:column;width:100%;min-height:100%;"]);
   var ContentContainer = styled$3.div.withConfig({
     displayName: "app__ContentContainer",
     componentId: "sc-z8fit0-1"
