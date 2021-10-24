@@ -65,9 +65,15 @@ const ErrorMessageContainer = styled.div`
   align-items: center;
 `;
 const ResultDisplayModeSelectContainer = styled.div`
-  position: absolute;
+  position: fixed;
   bottom: 10px;
   right: 10px;
+  opacity: 0.5;
+  &:active,
+  &:hover,
+  &:focus {
+    opacity: 1;
+  }
 `;
 
 function updateQuery(path: string) {
