@@ -4,8 +4,9 @@ import React from 'react';
 import { IOutputWIthMetadata } from '../src';
 
 export enum ResultDisplayMode {
-  card,
+  share,
   paragraph,
+  card,
 }
 const ResultContainer = styled(Card)`
   display: flex;
@@ -15,6 +16,8 @@ const ResultContainer = styled(Card)`
   align-items: flex-start;
   max-height: 95vh;
   overflow: scroll;
+
+  padding: 20px;
 `;
 const ResultParagraph = styled.p``;
 
@@ -41,9 +44,10 @@ export function GenerationResult(props: { result: Array<IOutputWIthMetadata<any[
         </ResultContainer>
       );
     }
+    case ResultDisplayMode.share:
     case ResultDisplayMode.paragraph: {
       return (
-        <ResultContainer>
+        <ResultContainer as="article">
           {props.result.map((outputLine, index) => (
             <ResultParagraph key={index}>{outputLine.value}</ResultParagraph>
           ))}

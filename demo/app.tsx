@@ -99,6 +99,10 @@ function App(): JSX.Element {
       } catch {}
     }
     configStringSetter(defaultConfigString);
+    const resultDisplayModeFromQueryString = queryString[0].mode;
+    if (resultDisplayModeFromQueryString) {
+      resultDisplayModeSetter(Number(resultDisplayModeFromQueryString));
+    }
   }, []);
 
   const updateConfigString = useCallback(
@@ -120,68 +124,80 @@ function App(): JSX.Element {
     [templateData, template],
   );
 
+  const updateResultDisplayMode = useCallback((nextResultDisplayMode: ResultDisplayMode) => {
+    resultDisplayModeSetter(nextResultDisplayMode);
+    queryString[1]({ mode: String(nextResultDisplayMode) });
+  }, []);
+
+  const inputGroup = (
+    <TemplateInputContainer>
+      <Tabs
+        id="Tabs"
+        onChange={(nextTabName: keyof typeof templates) => {
+          templateTabSetter(nextTabName);
+          templateSetter(templates[nextTabName]);
+          queryString[1]({ tab: nextTabName });
+        }}
+        selectedTabId={templateTab}>
+        {Object.keys(templates).map((templateName) => (
+          <Tab id={templateName} key={templateName} title={templateName} panel={<div />} />
+        ))}
+      </Tabs>
+      <TextArea
+        large={true}
+        intent={Intent.PRIMARY}
+        fill={true}
+        onChange={(event) => {
+          templateSetter(event.target.value);
+          if (templateTab === '空白') {
+            空白templateContentSetter(event.target.value);
+          }
+        }}
+        value={template}
+      />
+      <ConfigurationContainer>
+        {configSchema !== undefined && (
+          <ConfigJSONSchemaForm
+            formData={configFormData}
+            schema={configSchema}
+            onChange={(submitEvent) => {
+              const nextConfigString = JSON.stringify(submitEvent.formData);
+              updateConfigString(nextConfigString);
+            }}
+            onSubmit={() => rerender()}
+          />
+        )}
+        <TextArea
+          large={true}
+          intent={Intent.PRIMARY}
+          fill={true}
+          onChange={(event) => {
+            try {
+              // prevent invalid input
+              const nextConfigString = event.target.value;
+              updateConfigString(nextConfigString);
+            } catch {}
+          }}
+          value={configString}
+        />
+      </ConfigurationContainer>
+      <ErrorMessageContainer>{errorMessage}</ErrorMessageContainer>
+    </TemplateInputContainer>
+  );
+
   return (
     <Container>
       <ContentContainer>
-        <TemplateInputContainer>
-          <Tabs
-            id="Tabs"
-            onChange={(nextTabName: keyof typeof templates) => {
-              templateTabSetter(nextTabName);
-              templateSetter(templates[nextTabName]);
-              queryString[1]({ tab: nextTabName });
-            }}
-            selectedTabId={templateTab}>
-            {Object.keys(templates).map((templateName) => (
-              <Tab id={templateName} key={templateName} title={templateName} panel={<div />} />
-            ))}
-          </Tabs>
-          <TextArea
-            large={true}
-            intent={Intent.PRIMARY}
-            fill={true}
-            onChange={(event) => {
-              templateSetter(event.target.value);
-              if (templateTab === '空白') {
-                空白templateContentSetter(event.target.value);
-              }
-            }}
-            value={template}
-          />
-          <ConfigurationContainer>
-            {configSchema !== undefined && (
-              <ConfigJSONSchemaForm
-                formData={configFormData}
-                schema={configSchema}
-                onChange={(submitEvent) => {
-                  const nextConfigString = JSON.stringify(submitEvent.formData);
-                  updateConfigString(nextConfigString);
-                }}
-                onSubmit={() => rerender()}
-              />
-            )}
-            <TextArea
-              large={true}
-              intent={Intent.PRIMARY}
-              fill={true}
-              onChange={(event) => {
-                try {
-                  // prevent invalid input
-                  const nextConfigString = event.target.value;
-                  updateConfigString(nextConfigString);
-                } catch {}
-              }}
-              value={configString}
-            />
-          </ConfigurationContainer>
-          <ErrorMessageContainer>{errorMessage}</ErrorMessageContainer>
-        </TemplateInputContainer>
+        {resultDisplayMode !== ResultDisplayMode.share && inputGroup}
         <ResultDisplayModeSelectContainer>
           <ButtonGroup>
-            <Button icon="eye-on" onClick={() => resultDisplayModeSetter(ResultDisplayMode.paragraph)}>
+            <Button icon="share" onClick={() => updateResultDisplayMode(ResultDisplayMode.share)}>
+              分享模式
+            </Button>
+            <Button icon="eye-on" onClick={() => updateResultDisplayMode(ResultDisplayMode.paragraph)}>
               阅读模式
             </Button>
-            <Button icon="database" onClick={() => resultDisplayModeSetter(ResultDisplayMode.card)}>
+            <Button icon="database" onClick={() => updateResultDisplayMode(ResultDisplayMode.card)}>
               元信息模式
             </Button>
           </ButtonGroup>
