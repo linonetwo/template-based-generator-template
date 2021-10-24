@@ -16,4 +16,5 @@ const tail = ".md'), 'utf8')";
 export const templates = {
   空白: '',
   '360 评估': _`${importExport}360 评估${tail}` as string,
+  夸夸: _`${importExport}夸夸${tail}` as string,
 };
