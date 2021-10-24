@@ -1,4 +1,9 @@
 {
   "presets": ["@babel/env", "@babel/typescript", "@babel/react"],
-  "plugins": ["macros", "lodash", "styled-components"]
+  "plugins": [
+    "macros",
+    "lodash",
+    ["styled-components-px2rem", { "rootValue": 100, "unitPrecision": 5, "minPixelValue": 0, "multiplier": 1, "transformRuntime": false }],
+    "styled-components"
+  ]
 }

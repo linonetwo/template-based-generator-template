@@ -12,6 +12,7 @@ import { collectSlots, emptyConfigurationString, IConfiguration, templateFileToN
 import { templates } from '../src';
 import { VFile } from 'vfile';
 import { GenerationResult, ResultDisplayMode } from './result';
+import GlobalStyle from './globalStyle';
 
 const Form = withTheme(MaterialUITheme);
 
@@ -23,9 +24,12 @@ const Container = styled.div`
 `;
 const ContentContainer = styled.div`
   display: flex;
-  flex-direction: row;
   flex: 1;
   margin-top: 10px;
+  flex-direction: column;
+  @media (min-width: 700px) {
+    flex-direction: row;
+  }
 `;
 const TemplateInputContainer = styled(Card)`
   display: flex;
@@ -62,8 +66,8 @@ const ErrorMessageContainer = styled.div`
 `;
 const ResultDisplayModeSelectContainer = styled.div`
   position: absolute;
-  top: 20px;
-  right: 20px;
+  bottom: 100px;
+  right: 100px;
 `;
 
 function updateQuery(path: string) {
@@ -121,10 +125,13 @@ function App(): JSX.Element {
     [templateData, template, queryString],
   );
 
-  const updateResultDisplayMode = useCallback((nextResultDisplayMode: ResultDisplayMode) => {
-    resultDisplayModeSetter(nextResultDisplayMode);
-    queryString[1]({ mode: String(nextResultDisplayMode) });
-  }, [queryString]);
+  const updateResultDisplayMode = useCallback(
+    (nextResultDisplayMode: ResultDisplayMode) => {
+      resultDisplayModeSetter(nextResultDisplayMode);
+      queryString[1]({ mode: String(nextResultDisplayMode) });
+    },
+    [queryString],
+  );
 
   const inputGroup = (
     <TemplateInputContainer>
@@ -206,4 +213,10 @@ function App(): JSX.Element {
 }
 
 const domContainer = document.querySelector('#app');
-ReactDOM.render(<App />, domContainer);
+ReactDOM.render(
+  <>
+    <GlobalStyle />
+    <App />
+  </>,
+  domContainer,
+);
