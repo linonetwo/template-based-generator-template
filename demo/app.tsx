@@ -76,7 +76,6 @@ function App(): JSX.Element {
   const [templateTab, templateTabSetter] = useState<keyof typeof templates>('空白');
   const [resultDisplayMode, resultDisplayModeSetter] = useState<ResultDisplayMode>(ResultDisplayMode.paragraph);
   const [空白templateContent, 空白templateContentSetter] = useLocalStorage<string>('空白templateContent', templates['空白']);
-  const [defaultConfigString, defaultConfigStringSetter] = useLocalStorage<string>('defaultConfigString', emptyConfigurationString);
   let configFormData: IConfiguration | undefined;
   try {
     configFormData = JSON.parse(configString) as IConfiguration;
@@ -95,10 +94,9 @@ function App(): JSX.Element {
     if (configStringFromQueryString) {
       try {
         JSON.parse(configStringFromQueryString);
-        defaultConfigStringSetter(configStringFromQueryString);
+        configStringSetter(configStringFromQueryString);
       } catch {}
     }
-    configStringSetter(defaultConfigString);
     const resultDisplayModeFromQueryString = queryString[0].mode;
     if (resultDisplayModeFromQueryString) {
       resultDisplayModeSetter(Number(resultDisplayModeFromQueryString));
@@ -110,7 +108,6 @@ function App(): JSX.Element {
       const parsedConfig = JSON.parse(nextConfigString);
       // if no error thrown
       configStringSetter(nextConfigString);
-      defaultConfigStringSetter(nextConfigString);
       let usedSlots: string[] = [];
       if (templateData !== undefined) {
         usedSlots = collectSlots(templateData);
