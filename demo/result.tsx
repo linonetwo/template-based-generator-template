@@ -1,12 +1,14 @@
 import { Card, Elevation, Tag } from '@blueprintjs/core';
 import styled from 'styled-components';
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 import { IOutputWIthMetadata } from '../src';
 
 export enum ResultDisplayMode {
   share,
   paragraph,
   card,
+  markdown,
 }
 const ResultContainer = styled(Card)`
   display: flex;
@@ -34,7 +36,7 @@ export function ResultLine(props: { outputLine: IOutputWIthMetadata<any[]> }): J
   );
 }
 
-export function GenerationResult(props: { result: Array<IOutputWIthMetadata<any[]>>; resultDisplayMode: ResultDisplayMode }): JSX.Element {
+export function GenerationResult(props: { result: Array<IOutputWIthMetadata<any[]>>; resultDisplayMode: ResultDisplayMode; template: string }): JSX.Element {
   switch (props.resultDisplayMode) {
     case ResultDisplayMode.card: {
       return (
@@ -52,6 +54,13 @@ export function GenerationResult(props: { result: Array<IOutputWIthMetadata<any[
           {props.result.map((outputLine, index) => (
             <ResultParagraph key={index}>{outputLine.value}</ResultParagraph>
           ))}
+        </ResultContainer>
+      );
+    }
+    case ResultDisplayMode.markdown: {
+      return (
+        <ResultContainer as="article">
+          <ReactMarkdown>{props.template}</ReactMarkdown>
         </ResultContainer>
       );
     }

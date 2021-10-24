@@ -2,7 +2,7 @@
 
 TBGT 是一个基于**模**板的文本**生**成器的**模**板，模生模，凤生凤，老鼠的儿子会打洞。
 
-本模板是一个 Github Template，点击页面顶部按钮区的「Use this template」应用本模板可以得到一个你自己的文本生成器。
+本模板是一个 Github Template，点击页面顶部按钮区的「Use this template」应用本模板可以得到一个你自己的文本生成器。模板项目地址：[linonetwo/template-based-generator-template](https://github.com/linonetwo/template-based-generator-template)
 
 你也可以在代码里使用 `npm i tbg` 来赋能你自己的应用，使用方法详见 Demo 里的代码。
 
@@ -13,7 +13,7 @@ TBGT 是一个基于**模**板的文本**生**成器的**模**板，模生模，
 - 整活小作文
   - 模板可以指定需要保留原文中的哪些部分，挖空哪些部分，从而达到最大的模因性。
   - （神经网络写八股整活小作文受控程度应该很难比模板更好，就算更好，写出来也跟模板写的差不多。）
-- [巴别塔图书馆](https://github.com/linonetwo/Babel-Library2)
+- 本项目为[巴别塔图书馆](https://github.com/linonetwo/Babel-Library2)而开发
 
 ### 如何制作你自己的文本生成器
 
@@ -219,6 +219,8 @@ yyy
 
 本项目依靠自然语言具体语法树的力量，提供领先的社区共建友好的基于模板的文本生成解决方案。
 
+通过对获得的 MDAST 的理解，我们将其内容转换为 NLCST，并在运行时对这棵树的各节点做半随机的增删改查，从而做到自动生成内容。
+
 ### 自动多样性
 
 基于模板生成的多样性来自于组件的多样性，我们通过同义词替换来增加组件多样性。
@@ -226,3 +228,7 @@ yyy
 #### 编译期同义词标注
 
 由于分词库、同义词库很大，而替换效果其实不是很明显，如果把词库打包进去 roi 会比较低，所以我们在编译期进行词性标注和同义词标注，用类似 sourcemap 的方式把这些信息带在模板里打包进来。
+
+### 软连接
+
+为了方便加 Markdown 文件，我 `ln -s src/data/templates templates`。并且为了在网站上显示 Readme，我也 `ln -s README.md src/data/templates` 。

@@ -147,6 +147,10 @@ function App(): JSX.Element {
           templateTabSetter(nextTabName);
           templateSetter(templates[nextTabName]);
           queryString[1]({ tab: nextTabName });
+          // when opening readme, auto set display mode to markdown
+          if (nextTabName.toLowerCase() === 'readme') {
+            resultDisplayModeSetter(ResultDisplayMode.markdown);
+          }
         }}
         selectedTabId={templateTab}>
         {Object.keys(templates).map((templateName) => (
@@ -197,7 +201,7 @@ function App(): JSX.Element {
 
   return (
     <Container>
-      <ContentContainer>
+      <ContentContainer as="main">
         {resultDisplayMode !== ResultDisplayMode.share && inputGroup}
         <ResultDisplayModeSelectContainer>
           <ButtonGroup>
@@ -210,9 +214,12 @@ function App(): JSX.Element {
             <Button icon="database" onClick={() => updateResultDisplayMode(ResultDisplayMode.card)}>
               元信息模式
             </Button>
+            <Button icon="database" onClick={() => updateResultDisplayMode(ResultDisplayMode.markdown)}>
+              MD
+            </Button>
           </ButtonGroup>
         </ResultDisplayModeSelectContainer>
-        <GenerationResult result={result} resultDisplayMode={resultDisplayMode} />
+        <GenerationResult result={result} resultDisplayMode={resultDisplayMode} template={template} />
       </ContentContainer>
     </Container>
   );
