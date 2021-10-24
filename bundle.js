@@ -52348,11 +52348,6 @@
         空白templateContent = _useLocalStorage2[0],
         空白templateContentSetter = _useLocalStorage2[1];
 
-    var _useLocalStorage3 = useLocalStorage('defaultConfigString', emptyConfigurationString),
-        _useLocalStorage4 = _slicedToArray$1(_useLocalStorage3, 2),
-        defaultConfigString = _useLocalStorage4[0],
-        defaultConfigStringSetter = _useLocalStorage4[1];
-
     var configFormData;
 
     try {
@@ -52385,11 +52380,10 @@
       if (configStringFromQueryString) {
         try {
           JSON.parse(configStringFromQueryString);
-          defaultConfigStringSetter(configStringFromQueryString);
+          configStringSetter(configStringFromQueryString);
         } catch (_unused2) {}
       }
 
-      configStringSetter(defaultConfigString);
       var resultDisplayModeFromQueryString = queryString[0].mode;
 
       if (resultDisplayModeFromQueryString) {
@@ -52400,7 +52394,6 @@
       var parsedConfig = JSON.parse(nextConfigString); // if no error thrown
 
       configStringSetter(nextConfigString);
-      defaultConfigStringSetter(nextConfigString);
       var usedSlots = [];
 
       if (templateData !== undefined) {
