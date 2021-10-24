@@ -116,7 +116,7 @@ function App(): JSX.Element {
         const templateDataTemp = templateFileToNLCSTNodes(vFile);
         usedSlots = collectSlots(templateDataTemp);
       }
-      queryString[1]({ conf: JSON.stringify({ ...parsedConfig, substitutions: pick(parsedConfig.substitutions, usedSlots) }) });
+      queryString[1]({ conf: JSON.stringify({ ...parsedConfig, sub: pick(parsedConfig.sub, usedSlots) }) });
     },
     [templateData, template],
   );

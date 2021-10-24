@@ -8,9 +8,9 @@ import { EmptyTemplateTextError, NoResourceForOutlineError, NoValueForSlotError 
 import type { JSONSchema7 } from 'json-schema';
 
 export interface IConfiguration {
-  substitutions?: Record<string, string>;
+  sub?: Record<string, string>;
 }
-export const emptyConfigurationString = '{ "substitutions": {} }';
+export const emptyConfigurationString = '{ "sub": {} }';
 
 /**
  * 从模板里定义的多个大纲里随机抽取一个出来用
@@ -92,7 +92,7 @@ export function getConfigSchemaFromTemplate(templateData: ITemplateData): JSONSc
     type: 'object',
     required: [],
     properties: {
-      substitutions: {
+      sub: {
         title: '模板槽位',
         description: '填入{{槽位}}中的内容',
         type: 'object',
@@ -102,7 +102,7 @@ export function getConfigSchemaFromTemplate(templateData: ITemplateData): JSONSc
     },
   };
   for (const slot of slots) {
-    (configSchemaBase.properties!.substitutions as JSONSchema7).properties![slot] = {
+    (configSchemaBase.properties!.sub as JSONSchema7).properties![slot] = {
       type: 'string',
       title: slot,
     };
@@ -118,7 +118,7 @@ export function replaceSlotValues(article: Root, config: IConfiguration): void {
   visit(article, 'TextNode', (textNode: TextNode) => {
     // 看看是否需要替换槽位
     if (typeof textNode.slot === 'string') {
-      const actuarialValueForSlot = config.substitutions?.[textNode.slot];
+      const actuarialValueForSlot = config.sub?.[textNode.slot];
       if (actuarialValueForSlot === undefined) {
         throw new NoValueForSlotError(textNode.slot);
       }
