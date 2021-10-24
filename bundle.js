@@ -52419,13 +52419,13 @@
           sub: pick_1(parsedConfig.sub, usedSlots)
         }))
       });
-    }, [templateData, template]);
+    }, [templateData, template, queryString]);
     var updateResultDisplayMode = react.useCallback(function (nextResultDisplayMode) {
       resultDisplayModeSetter(nextResultDisplayMode);
       queryString[1]({
         mode: String(nextResultDisplayMode)
       });
-    }, []);
+    }, [queryString]);
     var inputGroup = /*#__PURE__*/react.createElement(TemplateInputContainer, null, /*#__PURE__*/react.createElement(Tabs, {
       id: "Tabs",
       onChange: function onChange(nextTabName) {
