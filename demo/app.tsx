@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { AnchorButton, Button, ButtonGroup, Card, Intent, Tab, Tabs, TextArea } from '@blueprintjs/core';
 import { withTheme } from '@rjsf/core';
-import { Theme as MaterialUITheme } from '@rjsf/material-ui';
+import { Theme as RJSFUITheme } from '@rjsf/fluent-ui';
 import { pick } from 'lodash';
 import { useLocalStorage } from 'beautiful-react-hooks';
 import useQueryString from 'use-query-string';
@@ -14,7 +14,7 @@ import { VFile } from 'vfile';
 import { GenerationResult, ResultDisplayMode } from './result';
 import GlobalStyle from './globalStyle';
 
-const Form = withTheme(MaterialUITheme);
+const Form = withTheme(RJSFUITheme);
 
 const Container = styled.div`
   display: flex;
@@ -66,8 +66,8 @@ const ErrorMessageContainer = styled.div`
 `;
 const ResultDisplayModeSelectContainer = styled.div`
   position: absolute;
-  bottom: 100px;
-  right: 100px;
+  bottom: 10px;
+  right: 10px;
 `;
 
 function updateQuery(path: string) {

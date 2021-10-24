@@ -17,8 +17,8 @@ const ResultContainer = styled(Card)`
   max-height: 100vh;
   overflow: scroll;
 
-  padding: 100px;
-  font-size: 180px;
+  padding: 40px;
+  font-size: 64px;
 `;
 const ResultParagraph = styled.p``;
 
