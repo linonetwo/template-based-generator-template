@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
-import { Card, Intent, Tab, Tabs, TextArea } from '@blueprintjs/core';
+import { AnchorButton, Button, ButtonGroup, Card, Intent, Tab, Tabs, TextArea } from '@blueprintjs/core';
 import { withTheme } from '@rjsf/core';
 import { Theme as MaterialUITheme } from '@rjsf/material-ui';
 import { pick } from 'lodash';
@@ -10,8 +10,8 @@ import useQueryString from 'use-query-string';
 import { useTemplateGeneration } from './useTemplateGeneration';
 import { collectSlots, emptyConfigurationString, IConfiguration, templateFileToNLCSTNodes } from '../src';
 import { templates } from '../src';
-import { ResultLine } from './result';
 import { VFile } from 'vfile';
+import { GenerationResult, ResultDisplayMode } from './result';
 
 const Form = withTheme(MaterialUITheme);
 
@@ -60,12 +60,10 @@ const ErrorMessageContainer = styled.div`
   justify-content: center;
   align-items: center;
 `;
-const ResultContainer = styled(Card)`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
+const ResultDisplayModeSelectContainer = styled.div`
+  position: absolute;
+  top: 20px;
+  right: 20px;
 `;
 
 function updateQuery(path: string) {
@@ -76,6 +74,7 @@ function App(): JSX.Element {
   const [configString, configStringSetter] = useState<string>(emptyConfigurationString);
   const queryString = useQueryString(window.location, updateQuery);
   const [templateTab, templateTabSetter] = useState<keyof typeof templates>('空白');
+  const [resultDisplayMode, resultDisplayModeSetter] = useState<ResultDisplayMode>(ResultDisplayMode.paragraph);
   const [空白templateContent, 空白templateContentSetter] = useLocalStorage<string>('空白templateContent', templates['空白']);
   const [defaultConfigString, defaultConfigStringSetter] = useLocalStorage<string>('defaultConfigString', emptyConfigurationString);
   let configFormData: IConfiguration | undefined;
@@ -177,11 +176,17 @@ function App(): JSX.Element {
           </ConfigurationContainer>
           <ErrorMessageContainer>{errorMessage}</ErrorMessageContainer>
         </TemplateInputContainer>
-        <ResultContainer>
-          {result.map((outputLine, index) => (
-            <ResultLine key={index} outputLine={outputLine} />
-          ))}
-        </ResultContainer>
+        <ResultDisplayModeSelectContainer>
+          <ButtonGroup>
+            <Button icon="eye-on" onClick={() => resultDisplayModeSetter(ResultDisplayMode.paragraph)}>
+              阅读模式
+            </Button>
+            <Button icon="database" onClick={() => resultDisplayModeSetter(ResultDisplayMode.card)}>
+              元信息模式
+            </Button>
+          </ButtonGroup>
+        </ResultDisplayModeSelectContainer>
+        <GenerationResult result={result} resultDisplayMode={resultDisplayMode} />
       </ContentContainer>
     </Container>
   );
