@@ -14,7 +14,7 @@ const ResultContainer = styled(Card)`
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  max-height: 95vh;
+  max-height: 100vh;
   overflow: scroll;
 
   padding: 100px;

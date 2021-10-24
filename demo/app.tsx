@@ -20,7 +20,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: 90vh;
+  min-height: 100%;
 `;
 const ContentContainer = styled.div`
   display: flex;
