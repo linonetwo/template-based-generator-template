@@ -65611,7 +65611,7 @@
   var ResultDisplayModeSelectContainer = styled$1.div.withConfig({
     displayName: "app__ResultDisplayModeSelectContainer",
     componentId: "sc-z8fit0-6"
-  })(["position:absolute;bottom:0.1rem;right:0.1rem;"]);
+  })(["position:fixed;bottom:0.1rem;right:0.1rem;opacity:0.5;&:active,&:hover,&:focus{opacity:1;}"]);
 
   function updateQuery(path) {
     window.history.pushState(null, document.title, path);
