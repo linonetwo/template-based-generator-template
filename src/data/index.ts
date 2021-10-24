@@ -5,10 +5,10 @@ import preval from 'preval.macro';
 const importedFiles = preval`
 const fs = require('fs');
 const path = require('path');
-const filesInTemplateFolder = fs.readdirSync(path.join(__dirname, 'templates'));
+const filesInTemplateFolder = fs.readdirSync(path.resolve(__dirname, 'templates'));
 const results = {};
 for (const fileName of filesInTemplateFolder) {
-  results[fileName.split('.')[0]] = fs.readFileSync(path.join(__dirname, 'templates', fileName), 'utf8');
+  results[fileName.split('.')[0]] = fs.readFileSync(path.resolve(__dirname, 'templates', fileName), 'utf8');
 }
 module.exports = results` as Record<string, string>;
 
