@@ -1,3 +1,4 @@
+import preval from 'preval.macro';
 import React, { useCallback, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
@@ -15,6 +16,13 @@ import { GenerationResult, ResultDisplayMode } from './result';
 import GlobalStyle from './globalStyle';
 
 const Form = withTheme(RJSFUITheme);
+const homePageUrl = preval`
+const fs = require('fs');
+const path = require('path');
+const projectFolder = path.resolve(__dirname, '..');
+const packageFile = fs.readFileSync(path.resolve(projectFolder, 'package.json'), 'utf8');
+module.exports = JSON.parse(packageFile).homepage;
+` as string;
 
 const Container = styled.div`
   display: flex;
@@ -217,6 +225,9 @@ function App(): JSX.Element {
             <Button icon="database" onClick={() => updateResultDisplayMode(ResultDisplayMode.markdown)}>
               MD
             </Button>
+            <a href={homePageUrl} target="_blank">
+              <Button icon="star">GitHub</Button>
+            </a>
           </ButtonGroup>
         </ResultDisplayModeSelectContainer>
         <GenerationResult result={result} resultDisplayMode={resultDisplayMode} template={template} />
