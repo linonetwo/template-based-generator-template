@@ -70355,6 +70355,7 @@
   var GlobalStyle = We(["body{height:100vh;min-height:100vh;#app{height:100%;width:100%;}}"]);
 
   var Form = withTheme(Theme);
+  var homePageUrl = "https://github.com/linonetwo/template-based-generator-template#readme";
   var Container = styled$1.div.withConfig({
     displayName: "app__Container",
     componentId: "sc-z8fit0-0"
@@ -70560,7 +70561,12 @@
       onClick: function onClick() {
         return updateResultDisplayMode(ResultDisplayMode.markdown);
       }
-    }, "MD"))), /*#__PURE__*/react.createElement(GenerationResult, {
+    }, "MD"), /*#__PURE__*/react.createElement("a", {
+      href: homePageUrl,
+      target: "_blank"
+    }, /*#__PURE__*/react.createElement(Button, {
+      icon: "star"
+    }, "GitHub")))), /*#__PURE__*/react.createElement(GenerationResult, {
       result: result,
       resultDisplayMode: resultDisplayMode,
       template: template
