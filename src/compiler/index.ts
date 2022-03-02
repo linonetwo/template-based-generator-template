@@ -1,5 +1,5 @@
 import { u } from 'unist-builder';
-import { cloneDeep, get, random, sample } from 'lodash';
+import { cloneDeep, compact, get, random, sample } from 'lodash';
 import { Paragraph, Sentence, TextNode, Word } from 'nlcst-types';
 import { visit } from 'unist-util-visit';
 import { Root, Content, toString } from 'nlcst-to-string';
@@ -16,7 +16,7 @@ export const emptyConfigurationString = '{ "sub": {} }';
  * 从模板里定义的多个大纲里随机抽取一个出来用
  */
 export function getRandomOutline(outlines: ITemplateData['outlines'] | undefined): string[] {
-  return sample(outlines ?? []) ?? [];
+  return sample((outlines ?? []).filter((outline) => outline.length > 0)) ?? [];
 }
 
 /**

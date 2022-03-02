@@ -95,7 +95,11 @@ export function templateFileToNLCSTNodes(templateFile: VFile): ITemplateData {
                 if (templateData.outlines === undefined) {
                   templateData.outlines = [];
                 }
-                templateData.outlines.push(outlineTextNode.value.split('\n'));
+                const outlineLines = outlineTextNode.value
+                  .split('\n')
+                  // 去掉被注释掉的大纲节点
+                  .filter((line) => !line.startsWith('//'));
+                templateData.outlines.push(outlineLines);
               }
             } else {
               // 遇到下一个标题时，跳出。此处默认我们要不就是 Heading 要不就是 Paragraph

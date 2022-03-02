@@ -16,7 +16,7 @@ for (const fileName of filesInTemplateFolder) {
   } catch (error) {
     // readme.md found failed in the CI
     // Fix: [!] (plugin babel) Error: /home/runner/work/template-based-generator-template/template-based-generator-template/src/data/index.ts: preval.macro: ENOENT: no such file or directory, open '/home/runner/work/template-based-generator-template/template-based-generator-template/src/data/templates/README.md' Learn more: https://www.npmjs.com/package/preval.macro
-    if (fileName.toLowerCase() === 'readme') {
+    if (fileName.toLowerCase() === 'readme.md') {
       const fixedReadmePath = path.resolve(__dirname, '..', '..', fileName);
       results[fileName.split('.')[0]] = fs.readFileSync(fixedReadmePath, 'utf8');
     }
