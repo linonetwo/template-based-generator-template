@@ -70558,7 +70558,7 @@
       onClick: function onClick() {
         return updateResultDisplayMode(ResultDisplayMode.paragraph);
       }
-    }, "\u9605\u8BFB\u6A21\u5F0F"), /*#__PURE__*/react.createElement(Button, {
+    }, "\u7F16\u8F91\u6A21\u5F0F"), /*#__PURE__*/react.createElement(Button, {
       icon: "database",
       onClick: function onClick() {
         return updateResultDisplayMode(ResultDisplayMode.card);
