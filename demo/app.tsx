@@ -217,7 +217,7 @@ function App(): JSX.Element {
               分享模式
             </Button>
             <Button icon="eye-on" onClick={() => updateResultDisplayMode(ResultDisplayMode.paragraph)}>
-              阅读模式
+              编辑模式
             </Button>
             <Button icon="database" onClick={() => updateResultDisplayMode(ResultDisplayMode.card)}>
               元信息模式
